@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Safe_Route</string>
+    <string name="home">HOME</string>
+    <string name="지도">지도</string>
+    <string name="재난">재난</string>
+    <string name="설정">설정</string>
+</resources>
