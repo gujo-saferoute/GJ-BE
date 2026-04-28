@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,135 +6,488 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F7"
+    android:background="@color/sr_background"
     tools:context=".MainActivity">
-
-    <com.kakao.vectormap.MapView
-        android:id="@+id/map_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_my_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:src="@android:drawable/ic_menu_mylocation"
-        android:contentDescription="내 위치로 이동"
-        app:backgroundTint="@android:color/white"
-        app:tint="#FF4757"
-        app:fabSize="mini"
-        app:elevation="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/home_layout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
         android:visibility="visible"
-        android:background="#F5F5F7"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Safe-Route"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="#333333"
-                android:layout_marginBottom="20dp"/>
+                android:text="@string/home"
+                android:textColor="@color/sr_text_primary"
+                android:textSize="32sp"
+                android:textStyle="bold" />
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFEDEF"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                android:layout_marginBottom="20dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🚨 [긴급] 대규모 호우 주의보"
-                        android:textColor="#D32F2F"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="주변 하천 범람 위험이 있으니 주의하세요."
-                        android:layout_marginTop="8dp"
-                        android:textColor="#555555" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="20dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="흥업 명륜진사갈비"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="♿ 휠체어 가능 태그 포함"
-                        android:layout_marginTop="10dp"
-                        android:textColor="#1976D2"
-                        android:background="#E3F2FD"
-                        android:padding="5dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            <TextView
+                style="@style/SafeRoute_SectionLabel"
+                android:layout_marginTop="24dp"
+                android:text="@string/realtime_alert" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="@drawable/white_rounded_bg">
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_large"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_red"
+                    android:contentDescription="@string/realtime_alert"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_alert_triangle_24" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/disaster_alert_title"
+                        android:textColor="@color/sr_text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/disaster_alert_message"
+                        android:textColor="@color/sr_text_secondary"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/alert_source"
+                        android:textColor="@color/sr_red"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/SafeRoute_SectionLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/nearby_shelters" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="내 신체 특성 설정"
+                    android:text="@string/view_all"
+                    android:textColor="@color/sr_blue"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
-                <CheckBox
-                    android:id="@+id/check_wheelchair"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="휠체어 이용 중" />
-                <Button
-                    android:id="@+id/btn_save_info"
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_large"
+                android:orientation="vertical">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="정보 저장"
-                    android:backgroundTint="#FFCC00" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SafeRoute_ItemTitle"
+                            android:text="@string/shelter_one_name" />
+
+                        <TextView
+                            style="@style/SafeRoute_ItemSubtitle"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/shelter_one_detail" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/SafeRoute_DistanceText"
+                        android:text="@string/shelter_one_distance" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="16dp"
+                    android:background="@color/sr_separator" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SafeRoute_ItemTitle"
+                            android:text="@string/shelter_two_name" />
+
+                        <TextView
+                            style="@style/SafeRoute_ItemSubtitle"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/shelter_two_detail" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/SafeRoute_DistanceText"
+                        android:text="@string/shelter_two_distance" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                style="@style/SafeRoute_SectionLabel"
+                android:layout_marginTop="24dp"
+                android:text="@string/weather_summary" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_large"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <ImageView
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_icon_gray"
+                    android:contentDescription="@string/weather_summary"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_cloud_rain_24" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SafeRoute_ItemTitle"
+                        android:text="@string/heavy_rain_expected" />
+
+                    <TextView
+                        style="@style/SafeRoute_ItemSubtitle"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/rainfall_detail" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/weather_temperature"
+                        android:textColor="@color/sr_text_primary"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/wind_speed"
+                        android:textColor="@color/sr_text_muted"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/map_screen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:id="@+id/map_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_search_bar"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@string/search_hint"
+                    android:src="@drawable/ic_search_24" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/search_hint"
+                    android:textColor="@color/sr_text_muted"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/SafeRoute_FilterChip"
+                        android:background="@drawable/bg_chip_blue"
+                        android:drawableStart="@drawable/ic_accessibility_24"
+                        android:drawablePadding="6dp"
+                        android:text="@string/barrier_free_filter"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        style="@style/SafeRoute_FilterChip"
+                        android:background="@drawable/bg_chip_dark"
+                        android:text="@string/filter_all"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        style="@style/SafeRoute_FilterChip"
+                        android:text="@string/filter_earthquake" />
+
+                    <TextView
+                        style="@style/SafeRoute_FilterChip"
+                        android:text="@string/filter_rain" />
+
+                    <TextView
+                        style="@style/SafeRoute_FilterChip"
+                        android:text="@string/filter_snow" />
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_my_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:contentDescription="@string/move_to_my_location"
+            android:src="@drawable/ic_locate_fixed_24"
+            android:visibility="visible"
+            app:backgroundTint="@android:color/white"
+            app:elevation="6dp"
+            app:fabSize="mini"
+            app:tint="@color/sr_blue" />
+    </FrameLayout>
+
+    <ScrollView
+        android:id="@+id/settings_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings"
+                android:textColor="@color/sr_text_primary"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                style="@style/SafeRoute_SectionLabel"
+                android:layout_marginTop="24dp"
+                android:text="@string/account" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_medium"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_gray"
+                    android:contentDescription="@string/account"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_user_24" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SafeRoute_ItemTitle"
+                        android:text="@string/login_required" />
+
+                    <TextView
+                        style="@style/SafeRoute_ItemSubtitle"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/connect_account" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                style="@style/SafeRoute_SectionLabel"
+                android:layout_marginTop="24dp"
+                android:text="@string/app_settings" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_medium"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    style="@style/SafeRoute_SettingsRow">
+                    <TextView
+                        style="@style/SafeRoute_ItemTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/dark_mode" />
+                    <Switch
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View style="@style/SafeRoute_Separator" />
+
+                <LinearLayout
+                    style="@style/SafeRoute_SettingsRow">
+                    <TextView
+                        style="@style/SafeRoute_ItemTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/disaster_notifications" />
+                    <Switch
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true" />
+                </LinearLayout>
+
+                <View style="@style/SafeRoute_Separator" />
+
+                <TextView
+                    style="@style/SafeRoute_SettingsTextRow"
+                    android:text="@string/privacy_security" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_card_medium"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/SafeRoute_SettingsTextRow"
+                    android:text="@string/notices" />
+
+                <View style="@style/SafeRoute_Separator" />
+
+                <TextView
+                    style="@style/SafeRoute_SettingsTextRow"
+                    android:text="@string/app_version" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
@@ -143,13 +496,14 @@
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:elevation="16dp"
-        app:itemIconTint="#555555"
-        app:itemTextColor="#555555"
-        app:menu="@menu/bottom_nav_menu"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="#E6FFFFFF"
+        app:elevation="8dp"
+        app:itemIconTint="@color/sr_bottom_nav_tint"
+        app:itemTextColor="@color/sr_bottom_nav_tint"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="sr_background">#F2F2F7</color>
+    <color name="sr_card">#FFFFFFFF</color>
+    <color name="sr_text_primary">#111111</color>
+    <color name="sr_text_secondary">#3C3C43</color>
+    <color name="sr_text_muted">#8E8E93</color>
+    <color name="sr_separator">#E5E5EA</color>
+    <color name="sr_blue">#0A84FF</color>
+    <color name="sr_red">#FF3B30</color>
+    <color name="sr_green">#34C759</color>
 </resources>

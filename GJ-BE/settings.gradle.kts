@@ -19,7 +19,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://devrepo.kakao.com/nexus/content/groups/public/") }
+        // Tmap 저장소 URL
+        maven { url = uri("https://repo.tmapplatform.com/repository/releases/") }
     }
 }
 

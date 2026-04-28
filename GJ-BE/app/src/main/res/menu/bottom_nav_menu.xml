@@ -3,22 +3,17 @@
 
     <item
         android:id="@+id/tab_home"
-        android:icon="@android:drawable/ic_menu_mylocation"
+        android:icon="@drawable/ic_home_24"
         android:title="@string/home" />
 
     <item
         android:id="@+id/tab_map"
-        android:icon="@android:drawable/ic_dialog_map"
-        android:title="@string/지도" />
-
-    <item
-        android:id="@+id/tab_disaster"
-        android:icon="@android:drawable/ic_dialog_alert"
-        android:title="@string/재난" />
+        android:icon="@drawable/ic_map_24"
+        android:title="@string/map" />
 
     <item
         android:id="@+id/tab_settings"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/설정" />
+        android:icon="@drawable/ic_settings_24"
+        android:title="@string/settings" />
 
 </menu>
