@@ -138,16 +138,19 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/home_shelter_one_name"
                             style="@style/SafeRoute_ItemTitle"
                             android:text="@string/shelter_one_name" />
 
                         <TextView
+                            android:id="@+id/home_shelter_one_detail"
                             style="@style/SafeRoute_ItemSubtitle"
                             android:layout_marginTop="4dp"
                             android:text="@string/shelter_one_detail" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/home_shelter_one_distance"
                         style="@style/SafeRoute_DistanceText"
                         android:text="@string/shelter_one_distance" />
                 </LinearLayout>
@@ -172,16 +175,19 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/home_shelter_two_name"
                             style="@style/SafeRoute_ItemTitle"
                             android:text="@string/shelter_two_name" />
 
                         <TextView
+                            android:id="@+id/home_shelter_two_detail"
                             style="@style/SafeRoute_ItemSubtitle"
                             android:layout_marginTop="4dp"
                             android:text="@string/shelter_two_detail" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/home_shelter_two_distance"
                         style="@style/SafeRoute_DistanceText"
                         android:text="@string/shelter_two_distance" />
                 </LinearLayout>
@@ -313,30 +319,33 @@
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/filter_barrier_free_chip"
                         style="@style/SafeRoute_FilterChip"
-                        android:background="@drawable/bg_chip_blue"
-                        android:drawableStart="@drawable/ic_accessibility_24"
+                        android:drawableStart="@drawable/ic_barrier_free_24"
                         android:drawablePadding="6dp"
-                        android:text="@string/barrier_free_filter"
-                        android:textColor="@android:color/white" />
+                        android:text="@string/barrier_free_filter" />
 
                     <TextView
+                        android:id="@+id/filter_all_chip"
                         style="@style/SafeRoute_FilterChip"
                         android:background="@drawable/bg_chip_dark"
-                        android:text="@string/filter_all"
+                        android:text="전체"
                         android:textColor="@android:color/white" />
 
                     <TextView
+                        android:id="@+id/filter_earthquake_chip"
                         style="@style/SafeRoute_FilterChip"
-                        android:text="@string/filter_earthquake" />
+                        android:text="지진" />
 
                     <TextView
+                        android:id="@+id/filter_rain_chip"
                         style="@style/SafeRoute_FilterChip"
-                        android:text="@string/filter_rain" />
+                        android:text="민방위" />
 
                     <TextView
+                        android:id="@+id/filter_snow_chip"
                         style="@style/SafeRoute_FilterChip"
-                        android:text="@string/filter_snow" />
+                        android:text="산사태" />
                 </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>
@@ -355,6 +364,38 @@
             app:elevation="6dp"
             app:fabSize="mini"
             app:tint="@color/sr_blue" />
+
+        <LinearLayout
+            android:id="@+id/route_info_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="96dp"
+            android:background="@drawable/bg_card_medium"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/route_info_title"
+                style="@style/SafeRoute_ItemTitle"
+                android:text="Shelter route" />
+
+            <TextView
+                android:id="@+id/route_info_detail"
+                style="@style/SafeRoute_ItemSubtitle"
+                android:layout_marginTop="6dp"
+                android:text="Waiting for current location" />
+
+            <TextView
+                android:id="@+id/route_info_distance"
+                style="@style/SafeRoute_DistanceText"
+                android:layout_marginTop="10dp"
+                android:text="-" />
+        </LinearLayout>
     </FrameLayout>
 
     <ScrollView
@@ -440,11 +481,21 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_dark"
+                        android:contentDescription="@string/dark_mode"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_moon_24" />
+
                     <TextView
                         style="@style/SafeRoute_ItemTitle"
                         android:layout_width="0dp"
+                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="@string/dark_mode" />
+
                     <Switch
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -454,11 +505,21 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_red"
+                        android:contentDescription="@string/disaster_notifications"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_bell_24" />
+
                     <TextView
                         style="@style/SafeRoute_ItemTitle"
                         android:layout_width="0dp"
+                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="@string/disaster_notifications" />
+
                     <Switch
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -467,9 +528,23 @@
 
                 <View style="@style/SafeRoute_Separator" />
 
-                <TextView
-                    style="@style/SafeRoute_SettingsTextRow"
-                    android:text="@string/privacy_security" />
+                <LinearLayout
+                    style="@style/SafeRoute_SettingsRow">
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_blue"
+                        android:contentDescription="@string/privacy_security"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_shield_24" />
+
+                    <TextView
+                        style="@style/SafeRoute_ItemTitle"
+                        android:layout_width="0dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="@string/privacy_security" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -479,9 +554,23 @@
                 android:background="@drawable/bg_card_medium"
                 android:orientation="vertical">
 
-                <TextView
-                    style="@style/SafeRoute_SettingsTextRow"
-                    android:text="@string/notices" />
+                <LinearLayout
+                    style="@style/SafeRoute_SettingsRow">
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_icon_muted"
+                        android:contentDescription="@string/notices"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_info_24" />
+
+                    <TextView
+                        style="@style/SafeRoute_ItemTitle"
+                        android:layout_width="0dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="@string/notices" />
+                </LinearLayout>
 
                 <View style="@style/SafeRoute_Separator" />
 
