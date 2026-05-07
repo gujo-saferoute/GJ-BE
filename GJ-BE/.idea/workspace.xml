@@ -78,7 +78,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/cupizza/Safe_Route.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/gujo-saferoute/GJ-BE.git&quot;,
     &quot;accountId&quot;: &quot;3652c1fc-e1d3-4e0f-8233-83cb3176ebe1&quot;
   }
 }</component>
@@ -112,6 +112,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\user\desktop\gujo\gujo_BE\GJ-BE\app\libs\Minimalist Mobile Messaging Interface" />
       <recent name="C:\Users\user\desktop\gujo\gujo_BE\GJ-BE\app\libs" />
       <recent name="C:\Users\user\AndroidStudioProjects\Safe_Route\app\src\main\res\drawable" />
     </key>
@@ -229,12 +230,12 @@
       <map>
         <entry key="com.example.safe_route_project">
           <value>
-            <CheckInfo lastCheckTimestamp="1776246575449" />
+            <CheckInfo lastCheckTimestamp="1777448484299" />
           </value>
         </entry>
         <entry key="com.example.safe_route_project.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1776246575447" />
+            <CheckInfo lastCheckTimestamp="1777448484307" />
           </value>
         </entry>
       </map>
