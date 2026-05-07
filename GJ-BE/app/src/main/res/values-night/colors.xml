@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="sr_background">#111214</color>
+    <color name="sr_card">#1C1C1E</color>
+    <color name="sr_surface_overlay">#FF2C2C2E</color>
+    <color name="sr_text_primary">#F5F5F7</color>
+    <color name="sr_text_secondary">#D1D1D6</color>
+    <color name="sr_text_muted">#8E8E93</color>
+    <color name="sr_separator">#2C2C2E</color>
+    <color name="sr_stroke_soft">#26FFFFFF</color>
+    <color name="sr_nav_background">#E61C1C1E</color>
+
+    <color name="sr_blue">#0A84FF</color>
+    <color name="sr_red">#FF453A</color>
+    <color name="sr_green">#30D158</color>
+</resources>

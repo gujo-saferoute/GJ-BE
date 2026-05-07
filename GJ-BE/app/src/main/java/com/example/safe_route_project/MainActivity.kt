@@ -2,22 +2,28 @@ package com.example.safe_route_project
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.safe_route_project.home.HomeAlertBinder
+import com.example.safe_route_project.settings.AppThemeManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -36,12 +42,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
     private lateinit var mapContainer: FrameLayout
+    private lateinit var bottomNav: BottomNavigationView
 
     private var tMapView: TMapView? = null
     private var isMapStarted = false
     private var hasMovedToInitialLocation = false
     private var locationCallback: LocationCallback? = null
     private var currentTMapPoint: TMapPoint? = null
+
+    private lateinit var homeAlertBinder: HomeAlertBinder
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -55,6 +64,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val notificationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -64,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         mapContainer = findViewById(R.id.map_container)
+        bottomNav = findViewById(R.id.bottom_nav)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -74,8 +88,19 @@ class MainActivity : AppCompatActivity() {
         val homeLayout = findViewById<View>(R.id.home_layout)
         val mapScreen = findViewById<View>(R.id.map_screen)
         val settingsLayout = findViewById<View>(R.id.settings_layout)
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         val btnMyLocation = findViewById<FloatingActionButton>(R.id.btn_my_location)
+        val switchDarkMode = findViewById<SwitchCompat>(R.id.switch_dark_mode)
+
+        homeAlertBinder = HomeAlertBinder(
+            activity = this,
+            titleView = findViewById<TextView>(R.id.tv_alert_title),
+            messageView = findViewById<TextView>(R.id.tv_alert_message),
+            sourceView = findViewById<TextView>(R.id.tv_alert_source),
+        )
+        homeAlertBinder.bind()
+
+        requestNotificationPermissionIfNeeded()
+        AppThemeManager.bind(this, switchDarkMode)
 
         btnMyLocation.setOnClickListener {
             moveToMyLocation()
@@ -115,7 +140,35 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        bottomNav.selectedItemId = R.id.tab_home
+        val initialTab = savedInstanceState?.getInt(KEY_SELECTED_TAB) ?: R.id.tab_home
+        bottomNav.selectedItemId = initialTab
+        handleLaunchIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleLaunchIntent(intent)
+    }
+
+    private fun handleLaunchIntent(intent: Intent?) {
+        when (intent?.getStringExtra(EXTRA_OPEN_TAB)) {
+            TAB_HOME -> bottomNav.selectedItemId = R.id.tab_home
+            TAB_MAP -> bottomNav.selectedItemId = R.id.tab_map
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+        val isGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!isGranted) {
+            notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     private fun startTmap() {
@@ -402,12 +455,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(KEY_SELECTED_TAB, bottomNav.selectedItemId)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onDestroy() {
         tMapView?.onDestroy()
         super.onDestroy()
     }
 
-    private companion object {
+    companion object {
+        const val EXTRA_OPEN_TAB = "open_tab"
+        const val TAB_HOME = "home"
+        const val TAB_MAP = "map"
+
+        private const val KEY_SELECTED_TAB = "key_selected_tab"
         private const val DEFAULT_LATITUDE = 37.566481622437934
         private const val DEFAULT_LONGITUDE = 126.98502302169841
         private const val MY_LOCATION_MARKER_ID = "myLocation"

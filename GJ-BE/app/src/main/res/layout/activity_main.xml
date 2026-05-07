@@ -67,6 +67,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tv_alert_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/disaster_alert_title"
@@ -75,6 +76,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tv_alert_message"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
@@ -84,6 +86,7 @@
                         android:textSize="15sp" />
 
                     <TextView
+                        android:id="@+id/tv_alert_source"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -288,7 +291,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="@string/search_hint"
-                    android:src="@drawable/ic_search_24" />
+                    android:src="@drawable/ic_search_24"
+                    android:tint="@color/sr_text_muted" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -351,7 +355,7 @@
             android:contentDescription="@string/move_to_my_location"
             android:src="@drawable/ic_locate_fixed_24"
             android:visibility="visible"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="@color/sr_card"
             app:elevation="6dp"
             app:fabSize="mini"
             app:tint="@color/sr_blue" />
@@ -406,7 +410,8 @@
                     android:background="@drawable/bg_icon_gray"
                     android:contentDescription="@string/account"
                     android:padding="12dp"
-                    android:src="@drawable/ic_user_24" />
+                    android:src="@drawable/ic_user_24"
+                    android:tint="@color/sr_text_muted" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -440,12 +445,15 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+
                     <TextView
                         style="@style/SafeRoute_ItemTitle"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:text="@string/dark_mode" />
-                    <Switch
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switch_dark_mode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
@@ -454,11 +462,13 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+
                     <TextView
                         style="@style/SafeRoute_ItemTitle"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:text="@string/disaster_notifications" />
+
                     <Switch
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -496,7 +506,7 @@
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#E6FFFFFF"
+        android:background="@color/sr_nav_background"
         app:elevation="8dp"
         app:itemIconTint="@color/sr_bottom_nav_tint"
         app:itemTextColor="@color/sr_bottom_nav_tint"

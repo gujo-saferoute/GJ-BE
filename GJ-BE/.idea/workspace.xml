@@ -5,6 +5,26 @@
       <config />
     </shared>
     <layouts>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_card_large.xml">
+        <config>
+          <theme>@style/Theme.Safe_Route</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_card_medium.xml">
+        <config>
+          <theme>@style/Theme.Safe_Route</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_chip_light.xml">
+        <config>
+          <theme>@style/Theme.Safe_Route</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_search_bar.xml">
+        <config>
+          <theme>@style/Theme.Safe_Route</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/white_rounded_bg.xml">
         <config>
           <theme>@style/Theme.Safe_Route</theme>
@@ -26,7 +46,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="114a1319-e47e-49b7-9c0d-8c99e651636d" name="Changes" comment="Default" />
+    <list default="true" id="114a1319-e47e-49b7-9c0d-8c99e651636d" name="Changes" comment="Default">
+      <change beforePath="$PROJECT_DIR$/../.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,7 +58,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\user\.android\avd\Pixel_8_2.avd]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[PhysicalDevice::serial=R3CY402B0LT]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -64,6 +87,7 @@
         <option value="Kotlin Class" />
         <option value="valueResourceFile" />
         <option value="resourceFile" />
+        <option value="Kotlin File" />
       </list>
     </option>
   </component>
@@ -82,7 +106,10 @@
     &quot;accountId&quot;: &quot;3652c1fc-e1d3-4e0f-8233-83cb3176ebe1&quot;
   }
 }</component>
-  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\user\.gradle\wrapper\dists\gradle-9.3.1-bin\23ovyewtku6u96viwx3xl3oks\gradle-9.3.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.3.1" />
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\vipki\.gradle\wrapper\dists\gradle-9.3.1-bin\23ovyewtku6u96viwx3xl3oks\gradle-9.3.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.3.1" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -104,16 +131,20 @@
     "cidr.known.project.marker": "true",
     "com.android.tools.idea.streaming.zoom.toolbar.visible": "false",
     "com.google.services.firebase.aqiPopupShown": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "frontend",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/user/desktop/gujo/gujo_BE/GJ-BE",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater"
+    "last_directory_selection": "C:/Users/vipki/AndroidStudioProjects/GJ-BE/GJ-BE/app/src/main/res/values-night",
+    "last_opened_file_path": "C:/Users/vipki/AndroidStudioProjects/GJ-BE/GJ-BE",
+    "settings.editor.selected.configurable": "nele.options"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\user\desktop\gujo\gujo_BE\GJ-BE\app\libs" />
       <recent name="C:\Users\user\AndroidStudioProjects\Safe_Route\app\src\main\res\drawable" />
+    </key>
+    <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="com.example.safe_route_project.app" />
     </key>
   </component>
   <component name="RunManager">
@@ -229,12 +260,12 @@
       <map>
         <entry key="com.example.safe_route_project">
           <value>
-            <CheckInfo lastCheckTimestamp="1776246575449" />
+            <CheckInfo lastCheckTimestamp="1777991404952" />
           </value>
         </entry>
         <entry key="com.example.safe_route_project.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1776246575447" />
+            <CheckInfo lastCheckTimestamp="1777991404954" />
           </value>
         </entry>
       </map>
