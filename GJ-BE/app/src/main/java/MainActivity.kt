@@ -42,6 +42,7 @@ import com.skt.tmap.overlay.TMapPolyLine
 import com.skt.tmap.poi.TMapPOIItem
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -77,6 +78,8 @@ class MainActivity : AppCompatActivity() {
     private var routeRequestVersion = 0
     private var activeDisasterType: DisasterType? = null
     private var barrierFreeOnly = false
+
+    private var shelterPins: List<ShelterPin> = emptyList()
     private val selectedRouteSummaries = mutableMapOf<TMapData.TMapPathType, RouteResult>()
     private val selectedRouteRequestsFinished = mutableSetOf<TMapData.TMapPathType>()
     private val homeRouteDistances = mutableMapOf<String, Double>()
@@ -127,6 +130,7 @@ class MainActivity : AppCompatActivity() {
         homeShelterTwoDetail = findViewById(R.id.home_shelter_two_detail)
         homeShelterTwoDistance = findViewById(R.id.home_shelter_two_distance)
 
+        loadSheltersFromFirestore()
         setupDisasterFilterChips()
         updateHomeShelterList()
 
@@ -175,6 +179,8 @@ class MainActivity : AppCompatActivity() {
 
                     if (!isMapStarted) {
                         startTmap()
+                    } else if (shelterPins.isNotEmpty()) {
+                        refreshShelterMarkers()
                     }
                     true
                 }
@@ -266,7 +272,7 @@ class MainActivity : AppCompatActivity() {
                 pointF: PointF
             ) {
                 val shelter = markerItemList
-                    .mapNotNull { marker -> SHELTER_PINS.firstOrNull { it.markerId == marker.id } }
+                    .mapNotNull { marker -> shelterPins.firstOrNull { it.markerId == marker.id } }
                     .firstOrNull()
                     ?: return
 
@@ -275,6 +281,52 @@ class MainActivity : AppCompatActivity() {
         })
 
         isMapStarted = true
+    }
+
+
+    private fun loadSheltersFromFirestore() {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("shelters")
+            .get()
+            .addOnSuccessListener { result ->
+                shelterPins = result.documents.mapNotNull { doc ->
+                    val markerId = doc.getString("markerId") ?: return@mapNotNull null
+                    val name = doc.getString("name") ?: return@mapNotNull null
+                    val address = doc.getString("address") ?: ""
+                    val description = doc.getString("description") ?: ""
+                    val latitude = doc.getDouble("latitude") ?: return@mapNotNull null
+                    val longitude = doc.getDouble("longitude") ?: return@mapNotNull null
+                    val barrierFree = doc.getBoolean("barrierFree") ?: false
+                    val evalInfo = doc.getString("evalInfo") ?: ""
+                    val disasterTypeStrings =
+                        doc.get("disasterTypes") as? List<*> ?: emptyList<Any>()
+                    val disasterTypes = disasterTypeStrings
+                        .mapNotNull { it as? String }
+                        .mapNotNull { typeName ->
+                            DisasterType.entries.firstOrNull { it.name == typeName }
+                        }
+                        .toSet()
+
+                    ShelterPin(
+                        markerId = markerId,
+                        name = name,
+                        address = address,
+                        description = description,
+                        point = TMapPoint(latitude, longitude),
+                        disasterTypes = disasterTypes,
+                        barrierFree = barrierFree,
+                        evalInfo = evalInfo
+                    )
+                }
+                updateHomeShelterList()
+                if (isMapStarted) {
+                    refreshShelterMarkers()
+                }
+            }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "대피소 데이터를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+
     }
 
     private fun setupDisasterFilterChips() {
@@ -553,7 +605,7 @@ class MainActivity : AppCompatActivity() {
     private fun refreshShelterMarkers() {
         val mapView = tMapView ?: return
         mapView.removeTMapMarkerItem(MY_LOCATION_MARKER_ID)
-        SHELTER_PINS.forEach { shelter ->
+        shelterPins.forEach { shelter ->
             mapView.removeTMapMarkerItem(shelter.markerId)
         }
 
@@ -561,7 +613,7 @@ class MainActivity : AppCompatActivity() {
             upsertCurrentLocationMarker(point)
         }
 
-        SHELTER_PINS.forEach { shelter ->
+        shelterPins.forEach { shelter ->
             if (shelterMatchesActiveFilters(shelter)) {
                 val markerItem = TMapMarkerItem().apply {
                     id = shelter.markerId
@@ -586,7 +638,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateHomeShelterList() {
         val basePoint = currentTMapPoint ?: TMapPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
-        val nearestShelters = SHELTER_PINS
+        val nearestShelters = shelterPins
             .map { shelter -> shelter to getHomeDisplayDistance(basePoint, shelter) }
             .sortedBy { (_, distance) -> distance }
 
@@ -628,33 +680,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestHomeShelterRouteDistances(startPoint: TMapPoint) {
+        // 홈 화면 거리 표시는 직선거리로 계산 (API 호출 절약)
+        // 실제 경로 계산은 마커 클릭 시에만 수행
         val previousStartPoint = lastHomeRouteStartPoint
         if (previousStartPoint != null && distanceBetween(previousStartPoint, startPoint) < ROUTE_REFRESH_DISTANCE_METERS) {
             return
         }
-
         lastHomeRouteStartPoint = startPoint
-        val requestVersion = ++homeRouteRequestVersion
         homeRouteDistances.clear()
-
-        SHELTER_PINS.forEach { shelter ->
-            TMapData().findPathDataAllType(
-                TMapData.TMapPathType.PEDESTRIAN_PATH,
-                startPoint,
-                shelter.point,
-                object : TMapData.OnFindPathDataAllTypeListener {
-                    override fun onFindPathDataAllType(document: Document?) {
-                        runOnUiThread {
-                            if (requestVersion != homeRouteRequestVersion) return@runOnUiThread
-
-                            val routeResult = document?.let { parseRouteResult(it) } ?: return@runOnUiThread
-                            homeRouteDistances[shelter.markerId] = routeResult.distanceMeters
-                            updateHomeShelterList()
-                        }
-                    }
-                }
-            )
+        // 직선거리로 homeRouteDistances 채우기
+        shelterPins.forEach { shelter ->
+            homeRouteDistances[shelter.markerId] = distanceBetween(startPoint, shelter.point).toDouble()
         }
+        updateHomeShelterList()
     }
 
     private fun showSelectedShelterRoute(shelter: ShelterPin) {
@@ -744,7 +782,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}"
+        val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
+            val cleanedEval = shelter.evalInfo.split(",").map { it.trim() }.distinct().joinToString(", ")
+            "\n♿ $cleanedEval"
+        } else ""
+        routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
         val displayDistance = pedestrianRoute?.distanceMeters ?: carRoute?.distanceMeters
         val routeSummaryText = listOfNotNull(
             displayDistance?.let { "거리 ${formatDistance(it)}" },
@@ -759,8 +801,18 @@ class MainActivity : AppCompatActivity() {
         val mapView = tMapView ?: return
         mapView.removeTMapPolyLine(SHELTER_ROUTE_LINE_ID)
         lastRouteSummaryText = null
-        routeInfoDetail.text = "\uACBD\uB85C \uC751\uB2F5\uC774 \uC5C6\uC5B4 \uAC70\uB9AC\uC640 \uC2DC\uAC04\uC744 \uACC4\uC0B0\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4"
-        routeInfoDistance.text = "\uACBD\uB85C \uACC4\uC0B0 \uC2E4\uD328"
+        val shelter = selectedShelter
+        if (shelter != null) {
+            val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
+                val cleanedEval = shelter.evalInfo.split(",").map { it.trim() }.distinct().joinToString(", ")
+                "\n\u267F $cleanedEval"
+            } else ""
+            routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
+            routeInfoDistance.text = "경로 계산 실패 (네트워크 오류)"
+        } else {
+            routeInfoDetail.text = "경로 응답이 없어 거리와 시간을 계산할 수 없습니다"
+            routeInfoDistance.text = "경로 계산 실패"
+        }
     }
 
     private fun createRoutePolyLine(points: ArrayList<TMapPoint>): TMapPolyLine {
@@ -1056,35 +1108,6 @@ class MainActivity : AppCompatActivity() {
         private const val SHELTER_ROUTE_LINE_ID = "selectedShelterRoute"
         private const val ROUTE_REFRESH_DISTANCE_METERS = 30f
 
-        private val SHELTER_PINS = listOf(
-            ShelterPin(
-                markerId = "earthquakeShelterYukminkwan",
-                name = "육민관고등학교",
-                address = "강원특별자치도 원주시 흥업면 북원로 1800",
-                description = "일시적 지진 대피소",
-                point = TMapPoint(37.3093637494005, 127.91848527917),
-                disasterTypes = setOf(DisasterType.EARTHQUAKE),
-                barrierFree = false
-            ),
-            ShelterPin(
-                markerId = "earthquakeShelterHeungeopElementary",
-                name = "흥업초등학교",
-                address = "강원특별자치도 원주시 흥업면 사제로 101",
-                description = "일시적 지진/산사태 대피소",
-                point = TMapPoint(37.3069664626505, 127.908445129503),
-                disasterTypes = setOf(DisasterType.EARTHQUAKE, DisasterType.LANDSLIDE),
-                barrierFree = false
-            ),
-            ShelterPin(
-                markerId = "civilDefenseShelterMandae199",
-                name = "만대로 199 민방위 대피소",
-                address = "강원특별자치도 원주시 만대로 199",
-                description = "민방위 대피소",
-                point = TMapPoint(37.331662, 127.924955),
-                disasterTypes = setOf(DisasterType.CIVIL_DEFENSE),
-                barrierFree = true
-            )
-        )
     }
 
     private data class ShelterPin(
@@ -1094,7 +1117,8 @@ class MainActivity : AppCompatActivity() {
         val description: String,
         val point: TMapPoint,
         val disasterTypes: Set<DisasterType>,
-        val barrierFree: Boolean
+        val barrierFree: Boolean,
+        val evalInfo: String = ""
     ) {
         fun matchesDisasterFilter(disasterType: DisasterType?): Boolean {
             return disasterType == null || disasterTypes.contains(disasterType)

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "139380317702",
+    "project_id": "safe-route-31943",
+    "storage_bucket": "safe-route-31943.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139380317702:android:8e607e79f880bfda6aad87",
+        "android_client_info": {
+          "package_name": "com.example.safe_route_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "139380317702-1fluncv3pckn1lt0b67cb7qatrrh03v3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.safe_route_project",
+            "certificate_hash": "a138318bf6453ae3f808dba0177658645278d52a"
+          }
+        },
+        {
+          "client_id": "139380317702-iosrbsa2btnkubsdebdu3gb5uaif751g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7PViFHUOMhEkTFdp5U0T7_vRpS3sTC2M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "139380317702-iosrbsa2btnkubsdebdu3gb5uaif751g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

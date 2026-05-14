@@ -5,22 +5,35 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.example.safe_route_project.MainActivity
+import androidx.core.content.ContextCompat
 import com.example.safe_route_project.R
+import com.example.safe_route_project.MainActivity
 import com.example.safe_route_project.data.disaster.model.DisasterAlert
+
 
 class DisasterNotificationHelper(
     private val context: Context,
 ) {
     fun show(alert: DisasterAlert) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
+        }
+
         ensureChannel()
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(MainActivity.EXTRA_OPEN_TAB, MainActivity.TAB_HOME)
+            putExtra(MainActivity.EXTRA_OPEN_TAB, MainActivity.TAB_MAP)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -40,7 +53,10 @@ class DisasterNotificationHelper(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        NotificationManagerCompat.from(context).notify((alert.sn ?: System.currentTimeMillis()).toInt(), notification)
+        NotificationManagerCompat.from(context).notify(
+            (alert.sn ?: System.currentTimeMillis()).toInt(),
+            notification
+        )
     }
 
     private fun ensureChannel() {

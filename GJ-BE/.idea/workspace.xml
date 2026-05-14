@@ -30,6 +30,11 @@
           <theme>@style/Theme.Safe_Route</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml">
+        <config>
+          <theme>@style/Theme.Safe_Route</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
         <config>
           <theme>@style/Theme.Safe_Route</theme>
@@ -47,8 +52,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="114a1319-e47e-49b7-9c0d-8c99e651636d" name="Changes" comment="Default">
-      <change beforePath="$PROJECT_DIR$/../.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../GJ-DB/saferoute.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +62,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[PhysicalDevice::serial=R3CY402B0LT]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\dwg0507\.android\avd\Medium_Phone.avd]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -106,7 +110,7 @@
     &quot;accountId&quot;: &quot;3652c1fc-e1d3-4e0f-8233-83cb3176ebe1&quot;
   }
 }</component>
-  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\vipki\.gradle\wrapper\dists\gradle-9.3.1-bin\23ovyewtku6u96viwx3xl3oks\gradle-9.3.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.3.1" />
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\dwg0507\.gradle\wrapper\dists\gradle-9.4.1-bin\arn2x92ynaizyzdaamcbpbhtj\gradle-9.4.1" javaHome="C:\Program Files\Android\Android Studio1\jbr" gradleVersion="9.4.1" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -129,22 +133,26 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "com.android.tools.idea.streaming.zoom.toolbar.visible": "false",
     "com.google.services.firebase.aqiPopupShown": "true",
-    "git-widget-placeholder": "frontend",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_directory_selection": "C:/Users/vipki/AndroidStudioProjects/GJ-BE/GJ-BE/app/src/main/res/values-night",
-    "last_opened_file_path": "C:/Users/vipki/AndroidStudioProjects/GJ-BE/GJ-BE",
+    "last_opened_file_path": "C:/Users/dwg0507/Documents/GitHub/GJ-BE/GJ-BE",
     "settings.editor.selected.configurable": "nele.options"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app\src\main\res\layout" />
+      <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app\src\main\java" />
+      <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app" />
+      <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app\src" />
       <recent name="C:\Users\user\desktop\gujo\gujo_BE\GJ-BE\app\libs\Minimalist Mobile Messaging Interface" />
-      <recent name="C:\Users\user\desktop\gujo\gujo_BE\GJ-BE\app\libs" />
-      <recent name="C:\Users\user\AndroidStudioProjects\Safe_Route\app\src\main\res\drawable" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="com.example.safe_route_project.com.example.safe_route_project" />
+      <recent name="com.example.safe_route_project.com.example.safe_route_project.notification" />
+      <recent name="com.example.safe_route_project" />
       <recent name="com.example.safe_route_project.app" />
     </key>
   </component>
@@ -170,8 +178,6 @@
       <option name="CLEAR_LOGCAT" value="false" />
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
       <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
       <option name="DEBUGGER_TYPE" value="Auto" />
       <Auto>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -180,7 +186,6 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Auto>
       <Hybrid>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -189,11 +194,9 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Hybrid>
       <Java>
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Java>
       <Native>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -202,7 +205,6 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
-        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Native>
       <Profilers>
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
@@ -261,12 +263,12 @@
       <map>
         <entry key="com.example.safe_route_project">
           <value>
-            <CheckInfo lastCheckTimestamp="1777991404952" />
+            <CheckInfo lastCheckTimestamp="1778701213747" />
           </value>
         </entry>
         <entry key="com.example.safe_route_project.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1777991404954" />
+            <CheckInfo lastCheckTimestamp="1778701213748" />
           </value>
         </entry>
       </map>

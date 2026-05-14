@@ -45,6 +45,8 @@ class DisasterMessageRepository(
         )
 
         val items = response.body.orEmpty()
+            .filter { isGangwonRegion(it.rcptnRgnNm) }
+            .filter { isDangerousDisaster(it.dstSeNm) }
         if (items.isEmpty()) return null
 
         val latestItem = items.maxWithOrNull(
@@ -135,6 +137,24 @@ class DisasterMessageRepository(
     }
 
     companion object {
+
+        // 강원도 지역 필터
+        fun isGangwonRegion(region: String?): Boolean {
+            if (region.isNullOrBlank()) return false
+            return region.contains("강원")
+        }
+
+        // 위험 재난 유형 필터 (황사, 실종, 날씨 안내 등 제외)
+        private val DANGEROUS_DISASTER_TYPES = setOf(
+            "지진", "지진해일", "홍수", "호우", "태풍", "산사태",
+            "화재", "폭발", "붕괴", "테러", "민방공", "풍수해",
+            "대설", "강풍", "해일", "화산"
+        )
+
+        fun isDangerousDisaster(dstSeNm: String?): Boolean {
+            if (dstSeNm.isNullOrBlank()) return false
+            return DANGEROUS_DISASTER_TYPES.any { dstSeNm.contains(it) }
+        }
 
         fun create(context: Context): DisasterMessageRepository {
             val client = OkHttpClient.Builder().build()
