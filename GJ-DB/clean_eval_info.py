@@ -10,7 +10,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import time
 
-SERVICE_ACCOUNT_KEY = "safe-route-31943-firebase-adminsdk-fbsvc-ab0a27ad1c.json"
+SERVICE_ACCOUNT_KEY = "safe-route-31943-firebase-adminsdk-fbsvc-fcb43991ef.json"
 
 def clean_eval_info(eval_info: str) -> str:
     if not eval_info:

@@ -13,7 +13,7 @@ import time
 import xml.etree.ElementTree as ET
 
 # ===== 설정 =====
-SERVICE_ACCOUNT_KEY = "safe-route-31943-firebase-adminsdk-fbsvc-ab0a27ad1c.json"
+SERVICE_ACCOUNT_KEY = "safe-route-31943-firebase-adminsdk-fbsvc-fcb43991ef.json"
 API_KEY = "8a2cf12c1dd2a7a9ad56cd788c16e5b0cc35dfec2380cf8a2ad8fdbef18a76d9"
 LIST_URL = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getDisConvFaclList"
 DETAIL_URL = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getFacInfoOpenApiJpEvalInfoList"

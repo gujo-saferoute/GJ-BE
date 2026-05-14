@@ -52,7 +52,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="114a1319-e47e-49b7-9c0d-8c99e651636d" name="Changes" comment="Default">
-      <change beforePath="$PROJECT_DIR$/../GJ-DB/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GJ-DB/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GJ-DB/clean_eval_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/clean_eval_info.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GJ-DB/update_barrier_free.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/update_barrier_free.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GJ-DB/upload_shelters.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/upload_shelters.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

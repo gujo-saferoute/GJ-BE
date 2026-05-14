@@ -14,7 +14,7 @@ from firebase_admin import credentials, firestore
 import time
 
 # ===== 설정 =====
-SERVICE_ACCOUNT_KEY = "safe-route-31943-firebase-adminsdk-fbsvc-ab0a27ad1c.json"
+SERVICE_ACCOUNT_KEY = "safe-route-31943-firebase-adminsdk-fbsvc-fcb43991ef.json"
 CSV_FILE = "민방위대피시설_강원특별자치도.csv"
 COLLECTION_NAME = "shelters"
 BATCH_SIZE = 400  # Firestore 배치 최대 500개, 여유있게 400
