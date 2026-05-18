@@ -30,7 +30,6 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // 이미 로그인된 경우 바로 메인으로
         if (auth.currentUser != null) {
             goToMain()
             return
@@ -38,11 +37,11 @@ class LoginActivity : AppCompatActivity() {
 
         progressBar = findViewById(R.id.login_progress)
 
-        // 구글 로그인 설정
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
+
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         findViewById<Button>(R.id.btn_google_login).setOnClickListener {
@@ -84,7 +83,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra(
+                MainActivity.EXTRA_OPEN_TAB,
+                this@LoginActivity.intent?.getStringExtra(MainActivity.EXTRA_OPEN_TAB)
+            )
+        }
+        startActivity(intent)
         finish()
     }
 }

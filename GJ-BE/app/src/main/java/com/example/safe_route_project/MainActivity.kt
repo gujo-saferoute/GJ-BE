@@ -8,7 +8,6 @@ import android.graphics.PointF
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
@@ -23,8 +22,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.safe_route_project.app.ServiceLocator
+import com.example.safe_route_project.data.shelter.DisasterType
+import com.example.safe_route_project.data.shelter.RouteResult
+import com.example.safe_route_project.data.shelter.ShelterPin
+import com.example.safe_route_project.data.shelter.ShelterRepository
 import com.example.safe_route_project.home.HomeAlertBinder
-import com.example.safe_route_project.settings.AppThemeManager
+import com.example.safe_route_project.home.HomeShelterBinder
+import com.example.safe_route_project.main.MainScreenController
+import com.example.safe_route_project.settings.AccountSectionController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -42,10 +48,11 @@ import com.skt.tmap.overlay.TMapPolyLine
 import com.skt.tmap.poi.TMapPOIItem
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import com.google.firebase.firestore.FirebaseFirestore
+
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var accountSectionController: AccountSectionController
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
     private lateinit var mapContainer: FrameLayout
@@ -59,12 +66,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var filterEarthquakeChip: TextView
     private lateinit var filterRainChip: TextView
     private lateinit var filterSnowChip: TextView
-    private lateinit var homeShelterOneName: TextView
-    private lateinit var homeShelterOneDetail: TextView
-    private lateinit var homeShelterOneDistance: TextView
-    private lateinit var homeShelterTwoName: TextView
-    private lateinit var homeShelterTwoDetail: TextView
-    private lateinit var homeShelterTwoDistance: TextView
+
+    private lateinit var shelterRepository: ShelterRepository
+    private lateinit var homeAlertBinder: HomeAlertBinder
+    private lateinit var homeShelterBinder: HomeShelterBinder
+    private lateinit var mainScreenController: MainScreenController
 
     private var tMapView: TMapView? = null
     private var isMapStarted = false
@@ -83,10 +89,7 @@ class MainActivity : AppCompatActivity() {
     private val selectedRouteSummaries = mutableMapOf<TMapData.TMapPathType, RouteResult>()
     private val selectedRouteRequestsFinished = mutableSetOf<TMapData.TMapPathType>()
     private val homeRouteDistances = mutableMapOf<String, Double>()
-    private var homeRouteRequestVersion = 0
     private var lastHomeRouteStartPoint: TMapPoint? = null
-
-    private lateinit var homeAlertBinder: HomeAlertBinder
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -100,10 +103,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val notificationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -112,6 +111,8 @@ class MainActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        shelterRepository = ServiceLocator.shelterRepository()
+
         mapContainer = findViewById(R.id.map_container)
         bottomNav = findViewById(R.id.bottom_nav)
         routeInfoCard = findViewById(R.id.route_info_card)
@@ -123,16 +124,6 @@ class MainActivity : AppCompatActivity() {
         filterEarthquakeChip = findViewById(R.id.filter_earthquake_chip)
         filterRainChip = findViewById(R.id.filter_rain_chip)
         filterSnowChip = findViewById(R.id.filter_snow_chip)
-        homeShelterOneName = findViewById(R.id.home_shelter_one_name)
-        homeShelterOneDetail = findViewById(R.id.home_shelter_one_detail)
-        homeShelterOneDistance = findViewById(R.id.home_shelter_one_distance)
-        homeShelterTwoName = findViewById(R.id.home_shelter_two_name)
-        homeShelterTwoDetail = findViewById(R.id.home_shelter_two_detail)
-        homeShelterTwoDistance = findViewById(R.id.home_shelter_two_distance)
-
-        loadSheltersFromFirestore()
-        setupDisasterFilterChips()
-        updateHomeShelterList()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -145,87 +136,88 @@ class MainActivity : AppCompatActivity() {
         val settingsLayout = findViewById<View>(R.id.settings_layout)
         val btnMyLocation = findViewById<FloatingActionButton>(R.id.btn_my_location)
         val switchDarkMode = findViewById<SwitchCompat>(R.id.switch_dark_mode)
+        val settingsAccountCard = findViewById<View>(R.id.settings_account_card)
+        val accountNameView = findViewById<TextView>(R.id.tv_account_name)
+        val accountEmailView = findViewById<TextView>(R.id.tv_account_email)
 
         homeAlertBinder = HomeAlertBinder(
             activity = this,
-            titleView = findViewById<TextView>(R.id.tv_alert_title),
-            messageView = findViewById<TextView>(R.id.tv_alert_message),
-            sourceView = findViewById<TextView>(R.id.tv_alert_source),
+            titleView = findViewById(R.id.tv_alert_title),
+            messageView = findViewById(R.id.tv_alert_message),
+            sourceView = findViewById(R.id.tv_alert_source),
         )
-        homeAlertBinder.bind()
 
-        requestNotificationPermissionIfNeeded()
-        AppThemeManager.bind(this, switchDarkMode)
+        homeShelterBinder = HomeShelterBinder(
+            shelterOneName = findViewById(R.id.home_shelter_one_name),
+            shelterOneDetail = findViewById(R.id.home_shelter_one_detail),
+            shelterOneDistance = findViewById(R.id.home_shelter_one_distance),
+            shelterTwoName = findViewById(R.id.home_shelter_two_name),
+            shelterTwoDetail = findViewById(R.id.home_shelter_two_detail),
+            shelterTwoDistance = findViewById(R.id.home_shelter_two_distance),
+        )
+
+        mainScreenController = MainScreenController(
+            activity = this,
+            bottomNav = bottomNav,
+            homeLayout = homeLayout,
+            mapScreen = mapScreen,
+            settingsLayout = settingsLayout,
+            btnMyLocation = btnMyLocation,
+            switchDarkMode = switchDarkMode,
+        )
+
+        accountSectionController = AccountSectionController(
+            activity = this,
+            accountCard = settingsAccountCard,
+            accountNameView = accountNameView,
+            accountEmailView = accountEmailView,
+        )
+
+
+        homeAlertBinder.bind()
+        accountSectionController.bind()
+        observeShelters()
+        setupDisasterFilterChips()
+        renderHomeShelters()
 
         btnMyLocation.setOnClickListener {
             moveToMyLocation()
         }
 
-        bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.tab_home -> {
-                    homeLayout.visibility = View.VISIBLE
-                    mapScreen.visibility = View.GONE
-                    settingsLayout.visibility = View.GONE
-                    btnMyLocation.visibility = View.GONE
-                    true
-                }
-
-                R.id.tab_map -> {
-                    homeLayout.visibility = View.GONE
-                    mapScreen.visibility = View.VISIBLE
-                    settingsLayout.visibility = View.GONE
-                    btnMyLocation.visibility = View.VISIBLE
-
-                    if (!isMapStarted) {
-                        startTmap()
-                    } else if (shelterPins.isNotEmpty()) {
-                        refreshShelterMarkers()
-                    }
-                    true
-                }
-
-                R.id.tab_settings -> {
-                    homeLayout.visibility = View.GONE
-                    mapScreen.visibility = View.GONE
-                    settingsLayout.visibility = View.VISIBLE
-                    btnMyLocation.visibility = View.GONE
-                    true
-                }
-
-                else -> false
+        mainScreenController.bind(savedInstanceState) {
+            if (!isMapStarted) {
+                startTmap()
+            } else {
+                refreshShelterMarkers()
             }
         }
-
-        val initialTab = savedInstanceState?.getInt(KEY_SELECTED_TAB) ?: R.id.tab_home
-        bottomNav.selectedItemId = initialTab
-        handleLaunchIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleLaunchIntent(intent)
+        mainScreenController.handleNewIntent(intent)
     }
 
-    private fun handleLaunchIntent(intent: Intent?) {
-        when (intent?.getStringExtra(EXTRA_OPEN_TAB)) {
-            TAB_HOME -> bottomNav.selectedItemId = R.id.tab_home
-            TAB_MAP -> bottomNav.selectedItemId = R.id.tab_map
-        }
-    }
+    private fun observeShelters() {
+        shelterRepository.fetchShelters(
+            onSuccess = { shelters ->
+                shelterPins = shelters
+                renderHomeShelters()
 
-    private fun requestNotificationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+                if (isMapStarted) {
+                    refreshShelterMarkers()
+                }
 
-        val isGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.POST_NOTIFICATIONS,
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (!isGranted) {
-            notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
+                val selected = selectedShelter
+                if (selected != null && shelterPins.none { it.markerId == selected.markerId }) {
+                    clearSelectedRoute()
+                }
+            },
+            onFailure = {
+                Toast.makeText(this, "대피소 데이터를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     private fun startTmap() {
@@ -283,52 +275,6 @@ class MainActivity : AppCompatActivity() {
         isMapStarted = true
     }
 
-
-    private fun loadSheltersFromFirestore() {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("shelters")
-            .get()
-            .addOnSuccessListener { result ->
-                shelterPins = result.documents.mapNotNull { doc ->
-                    val markerId = doc.getString("markerId") ?: return@mapNotNull null
-                    val name = doc.getString("name") ?: return@mapNotNull null
-                    val address = doc.getString("address") ?: ""
-                    val description = doc.getString("description") ?: ""
-                    val latitude = doc.getDouble("latitude") ?: return@mapNotNull null
-                    val longitude = doc.getDouble("longitude") ?: return@mapNotNull null
-                    val barrierFree = doc.getBoolean("barrierFree") ?: false
-                    val evalInfo = doc.getString("evalInfo") ?: ""
-                    val disasterTypeStrings =
-                        doc.get("disasterTypes") as? List<*> ?: emptyList<Any>()
-                    val disasterTypes = disasterTypeStrings
-                        .mapNotNull { it as? String }
-                        .mapNotNull { typeName ->
-                            DisasterType.entries.firstOrNull { it.name == typeName }
-                        }
-                        .toSet()
-
-                    ShelterPin(
-                        markerId = markerId,
-                        name = name,
-                        address = address,
-                        description = description,
-                        point = TMapPoint(latitude, longitude),
-                        disasterTypes = disasterTypes,
-                        barrierFree = barrierFree,
-                        evalInfo = evalInfo
-                    )
-                }
-                updateHomeShelterList()
-                if (isMapStarted) {
-                    refreshShelterMarkers()
-                }
-            }
-                    .addOnFailureListener {
-                        Toast.makeText(this, "대피소 데이터를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
-                    }
-
-    }
-
     private fun setupDisasterFilterChips() {
         filterBarrierFreeChip.setOnClickListener { toggleBarrierFreeFilter() }
         filterAllChip.setOnClickListener { setActiveDisasterFilter(null) }
@@ -376,7 +322,9 @@ class MainActivity : AppCompatActivity() {
         val barrierFreeIcon = ContextCompat.getDrawable(this, R.drawable.ic_barrier_free_24)
         barrierFreeIcon?.setTint(if (barrierFreeOnly) selectedTextColor else normalTextColor)
 
-        filterBarrierFreeChip.setBackgroundResource(if (barrierFreeOnly) R.drawable.bg_chip_blue else R.drawable.bg_chip_light)
+        filterBarrierFreeChip.setBackgroundResource(
+            if (barrierFreeOnly) R.drawable.bg_chip_blue else R.drawable.bg_chip_light
+        )
         filterBarrierFreeChip.setTextColor(if (barrierFreeOnly) selectedTextColor else normalTextColor)
         filterBarrierFreeChip.setCompoundDrawablesWithIntrinsicBounds(barrierFreeIcon, null, null, null)
 
@@ -415,7 +363,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startContinuousLocationTracking() {
         if (locationCallback != null) return
-
         if (!hasLocationPermission()) return
 
         val locationRequest = LocationRequest.Builder(getLocationPriority(), 3000L)
@@ -435,7 +382,7 @@ class MainActivity : AppCompatActivity() {
                 locationCallback!!,
                 Looper.getMainLooper()
             )
-        } catch (exception: SecurityException) {
+        } catch (_: SecurityException) {
             locationCallback = null
             Toast.makeText(this, "위치 권한을 확인해주세요.", Toast.LENGTH_SHORT).show()
         }
@@ -485,7 +432,7 @@ class MainActivity : AppCompatActivity() {
             }.addOnFailureListener {
                 requestSingleSystemLocation()
             }
-        } catch (exception: SecurityException) {
+        } catch (_: SecurityException) {
             requestSingleSystemLocation()
         }
     }
@@ -515,9 +462,9 @@ class MainActivity : AppCompatActivity() {
 
         try {
             locationManager.requestLocationUpdates(provider, 0L, 0f, listener, Looper.getMainLooper())
-        } catch (exception: SecurityException) {
+        } catch (_: SecurityException) {
             Toast.makeText(this, "위치 권한을 확인해주세요.", Toast.LENGTH_SHORT).show()
-        } catch (exception: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -529,7 +476,7 @@ class MainActivity : AppCompatActivity() {
             locationManager.getProviders(true)
                 .mapNotNull { provider -> locationManager.getLastKnownLocation(provider) }
                 .maxByOrNull { location -> location.time }
-        } catch (exception: SecurityException) {
+        } catch (_: SecurityException) {
             null
         }
     }
@@ -571,7 +518,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateCurrentLocation(location: Location) {
         val point = TMapPoint(location.latitude, location.longitude)
         currentTMapPoint = point
-        updateHomeShelterList()
+        renderHomeShelters()
         requestHomeShelterRouteDistances(point)
 
         val mapView = tMapView ?: return
@@ -626,73 +573,39 @@ class MainActivity : AppCompatActivity() {
                     canShowCallout = true
                     autoCallloutVisible = true
                 }
-
                 mapView.addTMapMarkerItem(markerItem)
             }
         }
     }
 
     private fun shelterMatchesActiveFilters(shelter: ShelterPin): Boolean {
-        return shelter.matchesDisasterFilter(activeDisasterType) && (!barrierFreeOnly || shelter.barrierFree)
+        return shelter.matchesDisasterFilter(activeDisasterType) &&
+                (!barrierFreeOnly || shelter.barrierFree)
     }
 
-    private fun updateHomeShelterList() {
+    private fun renderHomeShelters() {
         val basePoint = currentTMapPoint ?: TMapPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
-        val nearestShelters = shelterPins
-            .map { shelter -> shelter to getHomeDisplayDistance(basePoint, shelter) }
-            .sortedBy { (_, distance) -> distance }
-
-        updateHomeShelterRow(
-            nearestShelters.getOrNull(0),
-            homeShelterOneName,
-            homeShelterOneDetail,
-            homeShelterOneDistance
+        homeShelterBinder.render(
+            shelters = shelterPins,
+            basePoint = basePoint,
+            routeDistances = homeRouteDistances
         )
-        updateHomeShelterRow(
-            nearestShelters.getOrNull(1),
-            homeShelterTwoName,
-            homeShelterTwoDetail,
-            homeShelterTwoDistance
-        )
-    }
-
-    private fun updateHomeShelterRow(
-        shelterDistance: Pair<ShelterPin, Double>?,
-        nameView: TextView,
-        detailView: TextView,
-        distanceView: TextView
-    ) {
-        if (shelterDistance == null) {
-            nameView.text = "-"
-            detailView.text = "표시할 대피소가 없습니다"
-            distanceView.text = "-"
-            return
-        }
-
-        val (shelter, distanceMeters) = shelterDistance
-        nameView.text = shelter.name
-        detailView.text = "${shelter.disasterLabels()} · ${shelter.address}"
-        distanceView.text = formatDistance(distanceMeters)
-    }
-
-    private fun getHomeDisplayDistance(basePoint: TMapPoint, shelter: ShelterPin): Double {
-        return homeRouteDistances[shelter.markerId] ?: distanceBetween(basePoint, shelter.point).toDouble()
     }
 
     private fun requestHomeShelterRouteDistances(startPoint: TMapPoint) {
-        // 홈 화면 거리 표시는 직선거리로 계산 (API 호출 절약)
-        // 실제 경로 계산은 마커 클릭 시에만 수행
         val previousStartPoint = lastHomeRouteStartPoint
-        if (previousStartPoint != null && distanceBetween(previousStartPoint, startPoint) < ROUTE_REFRESH_DISTANCE_METERS) {
+        if (previousStartPoint != null &&
+            distanceBetween(previousStartPoint, startPoint) < ROUTE_REFRESH_DISTANCE_METERS
+        ) {
             return
         }
+
         lastHomeRouteStartPoint = startPoint
         homeRouteDistances.clear()
-        // 직선거리로 homeRouteDistances 채우기
         shelterPins.forEach { shelter ->
             homeRouteDistances[shelter.markerId] = distanceBetween(startPoint, shelter.point).toDouble()
         }
-        updateHomeShelterList()
+        renderHomeShelters()
     }
 
     private fun showSelectedShelterRoute(shelter: ShelterPin) {
@@ -703,7 +616,7 @@ class MainActivity : AppCompatActivity() {
         val currentPoint = currentTMapPoint
         if (currentPoint == null) {
             routeInfoDetail.text = "${shelter.address}\n현재 위치를 확인하는 중입니다"
-            routeInfoDistance.text = "\uACBD\uB85C \uC815\uBCF4 \uACC4\uC0B0 \uB300\uAE30"
+            routeInfoDistance.text = "경로 정보 계산 대기"
             return
         }
 
@@ -712,9 +625,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestRouteToShelter(startPoint: TMapPoint, shelter: ShelterPin, force: Boolean) {
         if (tMapView == null) return
+
         if (!force && lastRouteShelter == shelter) {
             val previousStartPoint = lastRouteStartPoint
-            if (previousStartPoint != null && distanceBetween(previousStartPoint, startPoint) < ROUTE_REFRESH_DISTANCE_METERS) {
+            if (previousStartPoint != null &&
+                distanceBetween(previousStartPoint, startPoint) < ROUTE_REFRESH_DISTANCE_METERS
+            ) {
                 lastRouteSummaryText?.let { routeInfoDistance.text = it }
                 return
             }
@@ -785,14 +701,19 @@ class MainActivity : AppCompatActivity() {
         val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
             val cleanedEval = shelter.evalInfo.split(",").map { it.trim() }.distinct().joinToString(", ")
             "\n♿ $cleanedEval"
-        } else ""
+        } else {
+            ""
+        }
+
         routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
+
         val displayDistance = pedestrianRoute?.distanceMeters ?: carRoute?.distanceMeters
         val routeSummaryText = listOfNotNull(
             displayDistance?.let { "거리 ${formatDistance(it)}" },
             carRoute?.let { "자동차 예상 ${formatDuration(it.durationSeconds)}" },
             pedestrianRoute?.let { "보행 예상 ${formatDuration(it.durationSeconds)}" }
         ).joinToString("\n")
+
         lastRouteSummaryText = routeSummaryText
         routeInfoDistance.text = routeSummaryText
     }
@@ -802,11 +723,14 @@ class MainActivity : AppCompatActivity() {
         mapView.removeTMapPolyLine(SHELTER_ROUTE_LINE_ID)
         lastRouteSummaryText = null
         val shelter = selectedShelter
+
         if (shelter != null) {
             val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
                 val cleanedEval = shelter.evalInfo.split(",").map { it.trim() }.distinct().joinToString(", ")
-                "\n\u267F $cleanedEval"
-            } else ""
+                "\n♿ $cleanedEval"
+            } else {
+                ""
+            }
             routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
             routeInfoDistance.text = "경로 계산 실패 (네트워크 오류)"
         } else {
@@ -871,7 +795,6 @@ class MainActivity : AppCompatActivity() {
         for (index in 0 until nodes.length) {
             val element = nodes.item(index) as? Element ?: continue
             if (!element.matchesTagName(tagName)) continue
-
             return element.textContent.trim().toDoubleOrNull()
         }
 
@@ -879,7 +802,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun Element.matchesTagName(expectedName: String): Boolean {
-        return localName == expectedName || tagName == expectedName || tagName.endsWith(":$expectedName")
+        return localName == expectedName ||
+                tagName == expectedName ||
+                tagName.endsWith(":$expectedName")
     }
 
     private fun fitRouteToScreen(points: ArrayList<TMapPoint>) {
@@ -888,7 +813,7 @@ class MainActivity : AppCompatActivity() {
 
         try {
             mapView.fitBounds(mapView.getBoundsFromPoints(points))
-        } catch (exception: RuntimeException) {
+        } catch (_: RuntimeException) {
             val shelter = selectedShelter ?: return
             mapView.zoomToTMapPoint(currentTMapPoint ?: shelter.point, shelter.point)
         }
@@ -923,16 +848,11 @@ class MainActivity : AppCompatActivity() {
         val radius = size / 2f - 4f
         canvas.drawCircle(size / 2f, size / 2f, radius, paint)
         canvas.drawCircle(size / 2f, size / 2f, radius, strokePaint)
-
         return bitmap
     }
 
     private fun createShelterPin(barrierFree: Boolean): android.graphics.Bitmap {
-        return if (barrierFree) {
-            createBarrierFreeShelterPin()
-        } else {
-            createDefaultShelterPin()
-        }
+        return if (barrierFree) createBarrierFreeShelterPin() else createDefaultShelterPin()
     }
 
     private fun createDefaultShelterPin(): android.graphics.Bitmap {
@@ -1065,9 +985,9 @@ class MainActivity : AppCompatActivity() {
         val minutes = totalMinutes % 60
 
         return if (hours > 0) {
-            "${hours}\uC2DC\uAC04 ${minutes}\uBD84"
+            "${hours}시간 ${minutes}분"
         } else {
-            "${minutes}\uBD84"
+            "${minutes}분"
         }
     }
 
@@ -1081,13 +1001,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        accountSectionController.refresh()
         if (tMapView != null) {
             startContinuousLocationTracking()
         }
     }
-
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(KEY_SELECTED_TAB, bottomNav.selectedItemId)
+        mainScreenController.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
 
@@ -1101,43 +1021,10 @@ class MainActivity : AppCompatActivity() {
         const val TAB_HOME = "home"
         const val TAB_MAP = "map"
 
-        private const val KEY_SELECTED_TAB = "key_selected_tab"
         private const val DEFAULT_LATITUDE = 37.3082
         private const val DEFAULT_LONGITUDE = 127.9135
         private const val MY_LOCATION_MARKER_ID = "myLocation"
         private const val SHELTER_ROUTE_LINE_ID = "selectedShelterRoute"
         private const val ROUTE_REFRESH_DISTANCE_METERS = 30f
-
     }
-
-    private data class ShelterPin(
-        val markerId: String,
-        val name: String,
-        val address: String,
-        val description: String,
-        val point: TMapPoint,
-        val disasterTypes: Set<DisasterType>,
-        val barrierFree: Boolean,
-        val evalInfo: String = ""
-    ) {
-        fun matchesDisasterFilter(disasterType: DisasterType?): Boolean {
-            return disasterType == null || disasterTypes.contains(disasterType)
-        }
-
-        fun disasterLabels(): String {
-            return disasterTypes.joinToString("/") { it.label }
-        }
-    }
-
-    private enum class DisasterType(val label: String) {
-        EARTHQUAKE("지진"),
-        CIVIL_DEFENSE("민방위"),
-        LANDSLIDE("산사태")
-    }
-
-    private data class RouteResult(
-        val points: ArrayList<TMapPoint>,
-        val distanceMeters: Double,
-        val durationSeconds: Double
-    )
 }

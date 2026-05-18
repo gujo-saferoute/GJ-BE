@@ -10,15 +10,28 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.safe_route_project.R
 import com.example.safe_route_project.MainActivity
+import com.example.safe_route_project.R
 import com.example.safe_route_project.data.disaster.model.DisasterAlert
-
 
 class DisasterNotificationHelper(
     private val context: Context,
 ) {
     fun show(alert: DisasterAlert) {
+        show(
+            title = alert.title,
+            message = alert.message,
+            openTab = MainActivity.TAB_MAP,
+            notificationId = (alert.sn ?: System.currentTimeMillis()).toInt()
+        )
+    }
+
+    fun show(
+        title: String,
+        message: String,
+        openTab: String,
+        notificationId: Int
+    ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     context,
@@ -32,31 +45,30 @@ class DisasterNotificationHelper(
         ensureChannel()
 
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(MainActivity.EXTRA_OPEN_TAB, MainActivity.TAB_MAP)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(MainActivity.EXTRA_OPEN_TAB, openTab)
         }
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            1001,
+            notificationId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_alert_triangle_24)
-            .setContentTitle(alert.title)
-            .setContentText(alert.message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(alert.message))
+            .setContentTitle(title)
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        NotificationManagerCompat.from(context).notify(
-            (alert.sn ?: System.currentTimeMillis()).toInt(),
-            notification
-        )
+        NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 
     private fun ensureChannel() {

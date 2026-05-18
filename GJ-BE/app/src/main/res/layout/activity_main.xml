@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/sr_background"
-    tools:context=".`3423423`">
+    tools:context=".MainActivity">
 
     <ScrollView
         android:id="@+id/home_layout"
@@ -437,10 +437,14 @@
                 android:text="@string/account" />
 
             <LinearLayout
+                android:id="@+id/settings_account_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_card_medium"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="16dp">
@@ -462,10 +466,12 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tv_account_name"
                         style="@style/SafeRoute_ItemTitle"
                         android:text="@string/login_required" />
 
                     <TextView
+                        android:id="@+id/tv_account_email"
                         style="@style/SafeRoute_ItemSubtitle"
                         android:layout_marginTop="4dp"
                         android:text="@string/connect_account" />
@@ -486,6 +492,7 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
@@ -511,6 +518,7 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
@@ -536,6 +544,7 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
@@ -562,6 +571,7 @@
 
                 <LinearLayout
                     style="@style/SafeRoute_SettingsRow">
+
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
