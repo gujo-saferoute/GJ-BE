@@ -37,6 +37,7 @@
     <string name="app_settings">앱 설정</string>
     <string name="dark_mode">다크 모드</string>
     <string name="disaster_notifications">재난 알림 수신</string>
+    <string name="disaster_test">재난 테스트</string>
     <string name="privacy_security">개인정보 보호 및 보안</string>
     <string name="notices">공지사항</string>
     <string name="app_version">앱 버전 정보  1.0.0</string>

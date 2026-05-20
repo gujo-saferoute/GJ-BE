@@ -1,5 +1,6 @@
 package com.example.safe_route_project
 
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -14,6 +15,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +33,7 @@ import com.example.safe_route_project.home.HomeAlertBinder
 import com.example.safe_route_project.home.HomeShelterBinder
 import com.example.safe_route_project.main.MainScreenController
 import com.example.safe_route_project.settings.AccountSectionController
+import com.example.safe_route_project.settings.DisasterTestManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -52,6 +55,11 @@ import org.w3c.dom.Element
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var routeFeatureRow: View
+    private lateinit var routeFeatureElevator: ImageView
+    private lateinit var routeFeatureToilet: ImageView
+    private lateinit var routeFeatureParking: ImageView
+    private lateinit var routeFeatureEntrance: ImageView
     private lateinit var accountSectionController: AccountSectionController
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
@@ -119,6 +127,11 @@ class MainActivity : AppCompatActivity() {
         routeInfoTitle = findViewById(R.id.route_info_title)
         routeInfoDetail = findViewById(R.id.route_info_detail)
         routeInfoDistance = findViewById(R.id.route_info_distance)
+        routeFeatureRow = findViewById(R.id.route_feature_row)
+        routeFeatureElevator = findViewById(R.id.route_feature_elevator)
+        routeFeatureToilet = findViewById(R.id.route_feature_toilet)
+        routeFeatureParking = findViewById(R.id.route_feature_parking)
+        routeFeatureEntrance = findViewById(R.id.route_feature_entrance)
         filterBarrierFreeChip = findViewById(R.id.filter_barrier_free_chip)
         filterAllChip = findViewById(R.id.filter_all_chip)
         filterEarthquakeChip = findViewById(R.id.filter_earthquake_chip)
@@ -136,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         val settingsLayout = findViewById<View>(R.id.settings_layout)
         val btnMyLocation = findViewById<FloatingActionButton>(R.id.btn_my_location)
         val switchDarkMode = findViewById<SwitchCompat>(R.id.switch_dark_mode)
+        val switchDisasterTest = findViewById<SwitchCompat>(R.id.switch_disaster_test)
         val settingsAccountCard = findViewById<View>(R.id.settings_account_card)
         val accountNameView = findViewById<TextView>(R.id.tv_account_name)
         val accountEmailView = findViewById<TextView>(R.id.tv_account_email)
@@ -176,6 +190,11 @@ class MainActivity : AppCompatActivity() {
 
         homeAlertBinder.bind()
         accountSectionController.bind()
+
+        DisasterTestManager.bind(this, switchDisasterTest) { enabled ->
+            homeAlertBinder.refresh(sendTestNotification = enabled)
+        }
+
         observeShelters()
         setupDisasterFilterChips()
         renderHomeShelters()
@@ -309,6 +328,7 @@ class MainActivity : AppCompatActivity() {
     private fun clearSelectedRoute() {
         selectedShelter = null
         routeInfoCard.visibility = View.GONE
+        hideBarrierFacilityIcons()
         tMapView?.removeTMapPolyLine(SHELTER_ROUTE_LINE_ID)
         lastRouteShelter = null
         lastRouteSummaryText = null
@@ -612,6 +632,7 @@ class MainActivity : AppCompatActivity() {
         selectedShelter = shelter
         routeInfoCard.visibility = View.VISIBLE
         routeInfoTitle.text = shelter.name
+        updateBarrierFacilityIcons(shelter)
 
         val currentPoint = currentTMapPoint
         if (currentPoint == null) {
@@ -699,12 +720,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
-            val cleanedEval = shelter.evalInfo.split(",").map { it.trim() }.distinct().joinToString(", ")
+            val cleanedEval = shelter.evalInfo
+                .split(",")
+                .map { it.trim() }
+                .distinct()
+                .joinToString(", ")
             "\n♿ $cleanedEval"
         } else {
             ""
         }
 
+        updateBarrierFacilityIcons(shelter)
         routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
 
         val displayDistance = pedestrianRoute?.distanceMeters ?: carRoute?.distanceMeters
@@ -726,14 +752,21 @@ class MainActivity : AppCompatActivity() {
 
         if (shelter != null) {
             val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
-                val cleanedEval = shelter.evalInfo.split(",").map { it.trim() }.distinct().joinToString(", ")
+                val cleanedEval = shelter.evalInfo
+                    .split(",")
+                    .map { it.trim() }
+                    .distinct()
+                    .joinToString(", ")
                 "\n♿ $cleanedEval"
             } else {
                 ""
             }
+
+            updateBarrierFacilityIcons(shelter)
             routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
             routeInfoDistance.text = "경로 계산 실패 (네트워크 오류)"
         } else {
+            hideBarrierFacilityIcons()
             routeInfoDetail.text = "경로 응답이 없어 거리와 시간을 계산할 수 없습니다"
             routeInfoDistance.text = "경로 계산 실패"
         }
@@ -979,6 +1012,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun updateBarrierFacilityIcons(shelter: ShelterPin?) {
+        if (shelter == null) {
+            hideBarrierFacilityIcons()
+            return
+        }
+
+        val tags = shelter.evalInfo
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toSet()
+
+        val hasElevator = tags.contains("승강기")
+        val hasToilet = tags.contains("장애인사용가능화장실")
+        val hasParking = tags.contains("장애인전용주차구역")
+        val hasEntrance = tags.any {
+            it == "주출입구 높이차이 제거" ||
+                    it == "주출입구 접근로" ||
+                    it == "주출입구(문)"
+        }
+
+        routeFeatureElevator.visibility = if (hasElevator) View.VISIBLE else View.GONE
+        routeFeatureToilet.visibility = if (hasToilet) View.VISIBLE else View.GONE
+        routeFeatureParking.visibility = if (hasParking) View.VISIBLE else View.GONE
+        routeFeatureEntrance.visibility = if (hasEntrance) View.VISIBLE else View.GONE
+
+        val hasAnyFeature = hasElevator || hasToilet || hasParking || hasEntrance
+        routeFeatureRow.visibility = if (hasAnyFeature) View.VISIBLE else View.GONE
+    }
+
+    private fun hideBarrierFacilityIcons() {
+        routeFeatureRow.visibility = View.GONE
+        routeFeatureElevator.visibility = View.GONE
+        routeFeatureToilet.visibility = View.GONE
+        routeFeatureParking.visibility = View.GONE
+        routeFeatureEntrance.visibility = View.GONE
+    }
     private fun formatDuration(durationSeconds: Double): String {
         val totalMinutes = kotlin.math.ceil(durationSeconds / 60.0).toInt().coerceAtLeast(1)
         val hours = totalMinutes / 60

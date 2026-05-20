@@ -7,7 +7,7 @@ admin.initializeApp();
 const DANGEROUS_DISASTER_TYPES = [
   "지진", "지진해일", "홍수", "호우", "태풍", "산사태",
   "화재", "폭발", "붕괴", "테러", "민방공", "풍수해",
-  "대설", "강풍", "해일", "화산"
+  "대설", "강풍", "해일", "화산", "산불"
 ];
 
 function isGangwonRegion(region) {
@@ -26,7 +26,7 @@ exports.checkDisasterAlert = onSchedule(
       region: "asia-northeast3",
       timeZone: "Asia/Seoul",
     },
-    async (event) => {
+    async () => {
       const SERVICE_KEY = process.env.DISASTER_API_KEY;
       const url = "https://www.safetydata.go.kr/V2/api/DSSP-IF-00247";
 

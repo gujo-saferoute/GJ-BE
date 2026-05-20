@@ -25,13 +25,34 @@ class DisasterMessageRepository(
             return null
         }
 
-        val url = buildApiUrl()
-        val query = buildQueryParams()
-        val headers = buildHeaders()
+        return fetchLatestFilteredAlert(
+            url = buildApiUrl(),
+            query = buildQueryParams(),
+            headers = buildHeaders(),
+            logPrefix = "DisasterApi"
+        )
+    }
 
-        Log.d("DisasterApi", "url=$url")
-        Log.d("DisasterApi", "query=$query")
-        Log.d("DisasterApi", "headers=$headers")
+    suspend fun getLatestTestAlert(): DisasterAlert? {
+        return fetchLatestFilteredAlert(
+            url = TEST_MODE_URL,
+            query = mapOf(
+                DisasterApiContract.RETURN_TYPE_NAME to DisasterApiContract.RETURN_TYPE_JSON
+            ),
+            headers = emptyMap(),
+            logPrefix = "DisasterApiTest"
+        )
+    }
+
+    private suspend fun fetchLatestFilteredAlert(
+        url: String,
+        query: Map<String, String>,
+        headers: Map<String, String>,
+        logPrefix: String
+    ): DisasterAlert? {
+        Log.d(logPrefix, "url=$url")
+        Log.d(logPrefix, "query=$query")
+        Log.d(logPrefix, "headers=$headers")
 
         val response = api.getDisasterMessages(
             url = url,
@@ -40,13 +61,14 @@ class DisasterMessageRepository(
         )
 
         Log.d(
-            "DisasterApi",
+            logPrefix,
             "resultCode=${response.header?.resultCode}, resultMsg=${response.header?.resultMsg}, totalCount=${response.totalCount}, bodyCount=${response.body?.size ?: -1}"
         )
 
         val items = response.body.orEmpty()
             .filter { isGangwonRegion(it.rcptnRgnNm) }
             .filter { isDangerousDisaster(it.dstSeNm) }
+
         if (items.isEmpty()) return null
 
         val latestItem = items.maxWithOrNull(
@@ -56,7 +78,7 @@ class DisasterMessageRepository(
         ) ?: return null
 
         Log.d(
-            "DisasterApi",
+            logPrefix,
             "latest sn=${latestItem.sn}, crtDt=${latestItem.crtDt}, regYmd=${latestItem.regYmd}, dst=${latestItem.dstSeNm}"
         )
 
@@ -138,17 +160,18 @@ class DisasterMessageRepository(
 
     companion object {
 
-        // 강원도 지역 필터
+        private const val TEST_MODE_URL =
+            "https://www.safetydata.go.kr/V2/api/DSSP-IF-00247?serviceKey=AGDIVZLYK121C979&pageNo=1&numOfRows=45&rgnNm=%EA%B0%95%EC%9B%90"
+
         fun isGangwonRegion(region: String?): Boolean {
             if (region.isNullOrBlank()) return false
             return region.contains("강원")
         }
 
-        // 위험 재난 유형 필터 (황사, 실종, 날씨 안내 등 제외)
         private val DANGEROUS_DISASTER_TYPES = setOf(
             "지진", "지진해일", "홍수", "호우", "태풍", "산사태",
             "화재", "폭발", "붕괴", "테러", "민방공", "풍수해",
-            "대설", "강풍", "해일", "화산"
+            "대설", "강풍", "해일", "화산", "산불"
         )
 
         fun isDangerousDisaster(dstSeNm: String?): Boolean {

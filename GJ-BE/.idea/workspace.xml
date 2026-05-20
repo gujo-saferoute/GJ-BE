@@ -52,10 +52,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="114a1319-e47e-49b7-9c0d-8c99e651636d" name="Changes" comment="Default">
-      <change beforePath="$PROJECT_DIR$/../GJ-DB/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GJ-DB/clean_eval_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/clean_eval_info.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GJ-DB/update_barrier_free.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/update_barrier_free.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GJ-DB/upload_shelters.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GJ-DB/upload_shelters.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/settings/DisasterTestManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_elevator.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_entrance.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_parking.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_toilet.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/repository/DisasterMessageRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/repository/DisasterMessageRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/home/HomeAlertBinder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/home/HomeAlertBinder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +75,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\dwg0507\.android\avd\Medium_Phone.avd]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\vipki\.android\avd\Medium_Phone.avd]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -137,20 +147,21 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;frontend&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_directory_selection&quot;: &quot;C:/Users/vipki/AndroidStudioProjects/GJ-BE/GJ-BE/app/src/main/res/values-night&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/dwg0507/Documents/GitHub/GJ-BE/GJ-BE&quot;,
+    &quot;recommended.upgrade.do.not.ask.for.project&quot;: &quot;true&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;nele.options&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\vipki\AndroidStudioProjects\GJ-BE\GJ-BE\app\src\main\res\drawable" />
       <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app\src\main\res\layout" />
       <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app\src\main\java" />
       <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app" />
       <recent name="C:\Users\dwg0507\Documents\GitHub\GJ-BE\GJ-BE\app\src" />
-      <recent name="C:\Users\user\desktop\gujo\gujo_BE\GJ-BE\app\libs\Minimalist Mobile Messaging Interface" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
       <recent name="com.example.safe_route_project.com.example.safe_route_project" />
@@ -181,6 +192,8 @@
       <option name="CLEAR_LOGCAT" value="false" />
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
       <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
+      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
       <option name="DEBUGGER_TYPE" value="Auto" />
       <Auto>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -189,6 +202,7 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Auto>
       <Hybrid>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -197,9 +211,11 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Hybrid>
       <Java>
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Java>
       <Native>
         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
@@ -208,6 +224,7 @@
         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
         <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+        <option name="DEBUG_SANDBOX_SDK" value="false" />
       </Native>
       <Profilers>
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
@@ -258,6 +275,9 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
     <MESSAGE value="Default" />
     <option name="LAST_COMMIT_MESSAGE" value="Default" />
   </component>
@@ -266,12 +286,12 @@
       <map>
         <entry key="com.example.safe_route_project">
           <value>
-            <CheckInfo lastCheckTimestamp="1778701213747" />
+            <CheckInfo lastCheckTimestamp="1779202018509" />
           </value>
         </entry>
         <entry key="com.example.safe_route_project.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1778701213748" />
+            <CheckInfo lastCheckTimestamp="1779202018497" />
           </value>
         </entry>
       </map>
