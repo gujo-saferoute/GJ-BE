@@ -52,19 +52,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="114a1319-e47e-49b7-9c0d-8c99e651636d" name="Changes" comment="Default">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/settings/DisasterTestManager.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_elevator.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_entrance.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_parking.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_toilet.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/api/DisasterApiContract.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/api/DisasterApiContract.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/repository/DisasterMessageRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/repository/DisasterMessageRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/store/DisasterAlertStore.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/data/disaster/store/DisasterAlertStore.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/home/HomeAlertBinder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/safe_route_project/home/HomeAlertBinder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_elevator.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_elevator.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_entrance.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_entrance.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_parking.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_parking.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_toilet.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_barrier_toilet.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/functions/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -123,7 +121,7 @@
     &quot;accountId&quot;: &quot;3652c1fc-e1d3-4e0f-8233-83cb3176ebe1&quot;
   }
 }</component>
-  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\dwg0507\.gradle\wrapper\dists\gradle-9.4.1-bin\arn2x92ynaizyzdaamcbpbhtj\gradle-9.4.1" javaHome="C:\Program Files\Android\Android Studio1\jbr" gradleVersion="9.4.1" />
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\vipki\.gradle\wrapper\dists\gradle-9.3.1-bin\23ovyewtku6u96viwx3xl3oks\gradle-9.3.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.3.1" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -286,12 +284,12 @@
       <map>
         <entry key="com.example.safe_route_project">
           <value>
-            <CheckInfo lastCheckTimestamp="1779202018509" />
+            <CheckInfo lastCheckTimestamp="1779562639984" />
           </value>
         </entry>
         <entry key="com.example.safe_route_project.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1779202018497" />
+            <CheckInfo lastCheckTimestamp="1779562639983" />
           </value>
         </entry>
       </map>

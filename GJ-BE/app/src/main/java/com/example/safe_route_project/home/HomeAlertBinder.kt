@@ -1,8 +1,8 @@
 package com.example.safe_route_project.home
 
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import android.widget.TextView
 import com.example.safe_route_project.MainActivity
 import com.example.safe_route_project.app.ServiceLocator
 import com.example.safe_route_project.data.disaster.model.DisasterAlert
@@ -34,6 +34,7 @@ class HomeAlertBinder(
 
     private fun renderNormalAlert() {
         val cachedAlert = store.getCachedAlert()
+
         if (cachedAlert != null) {
             render(
                 title = cachedAlert.title,
@@ -41,11 +42,7 @@ class HomeAlertBinder(
                 source = cachedAlert.source,
             )
         } else {
-            render(
-                title = "재난문자 불러오는 중",
-                message = "잠시만 기다려 주세요.",
-                source = "행정안전부 연계",
-            )
+            renderLoading()
         }
 
         activity.lifecycleScope.launch {
@@ -58,21 +55,17 @@ class HomeAlertBinder(
                             message = latest.message,
                             source = latest.source,
                         )
-                    } else if (cachedAlert == null) {
-                        render(
-                            title = "재난문자 없음",
-                            message = "현재 표시할 최신 재난문자가 없습니다.",
-                            source = "행정안전부 연계",
-                        )
+                    } else {
+                        // 핵심 수정:
+                        // 현재 조회 결과가 없으면 과거 캐시를 지우고 "없음" 상태로 바꾼다.
+                        store.clear()
+                        renderNoAlert()
                     }
                 }
                 .onFailure {
+                    // 실패했을 때는 기존 캐시가 있으면 그대로 유지
                     if (cachedAlert == null) {
-                        render(
-                            title = "재난문자 로드 실패",
-                            message = "네트워크 또는 API 설정을 확인해 주세요.",
-                            source = "행정안전부 연계",
-                        )
+                        renderError()
                     }
                 }
         }
@@ -127,6 +120,30 @@ class HomeAlertBinder(
         return copy(
             title = "재난 테스트 · $title",
             source = "테스트 모드 · $source"
+        )
+    }
+
+    private fun renderLoading() {
+        render(
+            title = "재난문자 불러오는 중",
+            message = "잠시만 기다려 주세요.",
+            source = "행정안전부 연계",
+        )
+    }
+
+    private fun renderNoAlert() {
+        render(
+            title = "재난문자 없음",
+            message = "현재 표시할 최신 재난문자가 없습니다.",
+            source = "행정안전부 연계",
+        )
+    }
+
+    private fun renderError() {
+        render(
+            title = "재난문자 로드 실패",
+            message = "네트워크 또는 API 설정을 확인해 주세요.",
+            source = "행정안전부 연계",
         )
     }
 

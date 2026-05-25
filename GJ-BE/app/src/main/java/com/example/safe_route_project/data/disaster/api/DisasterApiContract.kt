@@ -6,7 +6,7 @@ object DisasterApiContract {
 
     const val AUTH_MODE = AUTH_MODE_QUERY
     const val AUTH_QUERY_NAME = "serviceKey"
-    const val AUTH_HEADER_NAME = "Authorization"
+    const val AUTH_HEADER_NAME = "Autho rization"
 
     const val PAGE_NO_NAME = "pageNo"
     const val NUM_OF_ROWS_NAME = "numOfRows"

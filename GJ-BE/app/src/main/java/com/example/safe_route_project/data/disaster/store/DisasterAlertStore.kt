@@ -17,6 +17,15 @@ class DisasterAlertStore(context: Context) {
             .apply()
     }
 
+    fun clear() {
+        preferences.edit()
+            .remove(KEY_LAST_FINGERPRINT)
+            .remove(KEY_LAST_TITLE)
+            .remove(KEY_LAST_MESSAGE)
+            .remove(KEY_LAST_SOURCE)
+            .apply()
+    }
+
     fun getCachedAlert(): DisasterAlert? {
         val fingerprint = preferences.getString(KEY_LAST_FINGERPRINT, null) ?: return null
         val title = preferences.getString(KEY_LAST_TITLE, null) ?: return null

@@ -298,7 +298,7 @@
                     android:layout_height="24dp"
                     android:contentDescription="@string/search_hint"
                     android:src="@drawable/ic_search_24"
-                    android:tint="@color/sr_text_muted" />
+                    app:tint="@color/sr_text_muted" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -388,50 +388,6 @@
                 style="@style/SafeRoute_ItemTitle"
                 android:text="Shelter route" />
 
-            <LinearLayout
-                android:id="@+id/route_feature_row"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/route_feature_elevator"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="승강기"
-                    android:src="@drawable/ic_barrier_elevator"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/route_feature_toilet"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="장애인사용가능화장실"
-                    android:src="@drawable/ic_barrier_toilet"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/route_feature_parking"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="장애인전용주차구역"
-                    android:src="@drawable/ic_barrier_parking"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/route_feature_entrance"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="주출입구 접근"
-                    android:src="@drawable/ic_barrier_entrance"
-                    android:visibility="gone" />
-            </LinearLayout>
 
             <TextView
                 android:id="@+id/route_info_detail"
@@ -501,7 +457,7 @@
                     android:contentDescription="@string/account"
                     android:padding="12dp"
                     android:src="@drawable/ic_user_24"
-                    android:tint="@color/sr_text_muted" />
+                    app:tint="@color/sr_text_muted" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -571,7 +527,7 @@
                         android:contentDescription="@string/disaster_test"
                         android:padding="7dp"
                         android:src="@drawable/ic_alert_triangle_24"
-                        android:tint="@color/sr_text_muted" />
+                        app:tint="@color/sr_text_muted" />
 
                     <TextView
                         style="@style/SafeRoute_ItemTitle"
@@ -612,26 +568,7 @@
                         android:checked="true" />
                 </LinearLayout>
 
-                <View style="@style/SafeRoute_Separator" />
 
-                <LinearLayout
-                    style="@style/SafeRoute_SettingsRow">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="@drawable/bg_icon_blue"
-                        android:contentDescription="@string/privacy_security"
-                        android:padding="7dp"
-                        android:src="@drawable/ic_shield_24" />
-
-                    <TextView
-                        style="@style/SafeRoute_ItemTitle"
-                        android:layout_width="0dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:text="@string/privacy_security" />
-                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -641,24 +578,6 @@
                 android:background="@drawable/bg_card_medium"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    style="@style/SafeRoute_SettingsRow">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="@drawable/bg_icon_muted"
-                        android:contentDescription="@string/notices"
-                        android:padding="7dp"
-                        android:src="@drawable/ic_info_24" />
-
-                    <TextView
-                        style="@style/SafeRoute_ItemTitle"
-                        android:layout_width="0dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:text="@string/notices" />
-                </LinearLayout>
 
                 <View style="@style/SafeRoute_Separator" />
 

@@ -169,14 +169,28 @@ class DisasterMessageRepository(
         }
 
         private val DANGEROUS_DISASTER_TYPES = setOf(
-            "지진", "지진해일", "홍수", "호우", "태풍", "산사태",
-            "화재", "폭발", "붕괴", "테러", "민방공", "풍수해",
-            "대설", "강풍", "해일", "화산", "산불"
+            "지진",
+            "지진해일",
+            "홍수",
+            "태풍",
+            "산사태",
+            "화재",
+            "폭발",
+            "붕괴",
+            "테러",
+            "민방공",
+            "풍수해",
+            "해일",
+            "화산",
+            "산불"
         )
 
         fun isDangerousDisaster(dstSeNm: String?): Boolean {
-            if (dstSeNm.isNullOrBlank()) return false
-            return DANGEROUS_DISASTER_TYPES.any { dstSeNm.contains(it) }
+            val normalized = dstSeNm?.trim() ?: return false
+            if (normalized.isBlank()) return false
+            if (normalized == "기타") return false
+
+            return DANGEROUS_DISASTER_TYPES.any { normalized.contains(it) }
         }
 
         fun create(context: Context): DisasterMessageRepository {

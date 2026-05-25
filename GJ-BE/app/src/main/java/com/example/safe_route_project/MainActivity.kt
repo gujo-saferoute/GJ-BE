@@ -6,6 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PointF
+import android.graphics.drawable.Drawable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ImageSpan
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -15,7 +19,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -55,11 +58,7 @@ import org.w3c.dom.Element
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var routeFeatureRow: View
-    private lateinit var routeFeatureElevator: ImageView
-    private lateinit var routeFeatureToilet: ImageView
-    private lateinit var routeFeatureParking: ImageView
-    private lateinit var routeFeatureEntrance: ImageView
+
     private lateinit var accountSectionController: AccountSectionController
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
@@ -81,6 +80,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainScreenController: MainScreenController
 
     private var tMapView: TMapView? = null
+
+    private var shouldRefreshHomeAlertOnResume = false
     private var isMapStarted = false
     private var hasMovedToInitialLocation = false
     private var locationCallback: LocationCallback? = null
@@ -127,11 +128,6 @@ class MainActivity : AppCompatActivity() {
         routeInfoTitle = findViewById(R.id.route_info_title)
         routeInfoDetail = findViewById(R.id.route_info_detail)
         routeInfoDistance = findViewById(R.id.route_info_distance)
-        routeFeatureRow = findViewById(R.id.route_feature_row)
-        routeFeatureElevator = findViewById(R.id.route_feature_elevator)
-        routeFeatureToilet = findViewById(R.id.route_feature_toilet)
-        routeFeatureParking = findViewById(R.id.route_feature_parking)
-        routeFeatureEntrance = findViewById(R.id.route_feature_entrance)
         filterBarrierFreeChip = findViewById(R.id.filter_barrier_free_chip)
         filterAllChip = findViewById(R.id.filter_all_chip)
         filterEarthquakeChip = findViewById(R.id.filter_earthquake_chip)
@@ -210,6 +206,7 @@ class MainActivity : AppCompatActivity() {
                 refreshShelterMarkers()
             }
         }
+        shouldRefreshHomeAlertOnResume = false
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -328,7 +325,6 @@ class MainActivity : AppCompatActivity() {
     private fun clearSelectedRoute() {
         selectedShelter = null
         routeInfoCard.visibility = View.GONE
-        hideBarrierFacilityIcons()
         tMapView?.removeTMapPolyLine(SHELTER_ROUTE_LINE_ID)
         lastRouteShelter = null
         lastRouteSummaryText = null
@@ -632,7 +628,6 @@ class MainActivity : AppCompatActivity() {
         selectedShelter = shelter
         routeInfoCard.visibility = View.VISIBLE
         routeInfoTitle.text = shelter.name
-        updateBarrierFacilityIcons(shelter)
 
         val currentPoint = currentTMapPoint
         if (currentPoint == null) {
@@ -719,19 +714,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
-            val cleanedEval = shelter.evalInfo
-                .split(",")
-                .map { it.trim() }
-                .distinct()
-                .joinToString(", ")
-            "\n♿ $cleanedEval"
-        } else {
-            ""
-        }
-
-        updateBarrierFacilityIcons(shelter)
-        routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
+        routeInfoDetail.text = buildRouteDetailText(shelter)
 
         val displayDistance = pedestrianRoute?.distanceMeters ?: carRoute?.distanceMeters
         val routeSummaryText = listOfNotNull(
@@ -751,27 +734,13 @@ class MainActivity : AppCompatActivity() {
         val shelter = selectedShelter
 
         if (shelter != null) {
-            val evalText = if (shelter.barrierFree && shelter.evalInfo.isNotEmpty()) {
-                val cleanedEval = shelter.evalInfo
-                    .split(",")
-                    .map { it.trim() }
-                    .distinct()
-                    .joinToString(", ")
-                "\n♿ $cleanedEval"
-            } else {
-                ""
-            }
-
-            updateBarrierFacilityIcons(shelter)
-            routeInfoDetail.text = "${shelter.address}\n${shelter.disasterLabels()}$evalText"
+            routeInfoDetail.text = buildRouteDetailText(shelter)
             routeInfoDistance.text = "경로 계산 실패 (네트워크 오류)"
         } else {
-            hideBarrierFacilityIcons()
             routeInfoDetail.text = "경로 응답이 없어 거리와 시간을 계산할 수 없습니다"
             routeInfoDistance.text = "경로 계산 실패"
         }
     }
-
     private fun createRoutePolyLine(points: ArrayList<TMapPoint>): TMapPolyLine {
         return TMapPolyLine().apply {
             setID(SHELTER_ROUTE_LINE_ID)
@@ -1012,44 +981,102 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun buildRouteDetailText(shelter: ShelterPin): CharSequence {
+        val builder = SpannableStringBuilder()
 
-    private fun updateBarrierFacilityIcons(shelter: ShelterPin?) {
-        if (shelter == null) {
-            hideBarrierFacilityIcons()
-            return
-        }
+        builder.append(shelter.address)
+        builder.append("\n")
+        builder.append(shelter.disasterLabels())
 
         val tags = shelter.evalInfo
             .split(",")
             .map { it.trim() }
             .filter { it.isNotEmpty() }
-            .toSet()
+            .distinct()
 
-        val hasElevator = tags.contains("승강기")
-        val hasToilet = tags.contains("장애인사용가능화장실")
-        val hasParking = tags.contains("장애인전용주차구역")
-        val hasEntrance = tags.any {
-            it == "주출입구 높이차이 제거" ||
-                    it == "주출입구 접근로" ||
-                    it == "주출입구(문)"
+        if (shelter.barrierFree && tags.isNotEmpty()) {
+            builder.append("\n")
+
+            var hasPrevious = false
+
+            if (tags.contains("승강기")) {
+                appendFacilityWithIcon(
+                    builder = builder,
+                    drawableRes = R.drawable.ic_barrier_elevator,
+                    text = "승강기",
+                    addComma = hasPrevious
+                )
+                hasPrevious = true
+            }
+
+            if (tags.contains("장애인전용주차구역")) {
+                appendFacilityWithIcon(
+                    builder = builder,
+                    drawableRes = R.drawable.ic_barrier_parking,
+                    text = "장애인전용주차구역",
+                    addComma = hasPrevious
+                )
+                hasPrevious = true
+            }
+
+            if (tags.contains("장애인사용가능화장실")) {
+                appendFacilityWithIcon(
+                    builder = builder,
+                    drawableRes = R.drawable.ic_barrier_toilet,
+                    text = "장애인사용가능화장실",
+                    addComma = hasPrevious
+                )
+                hasPrevious = true
+            }
+
+            val entranceTags = listOf(
+                "주출입구 높이차이 제거",
+                "주출입구 접근로",
+                "주출입구(문)"
+            ).filter { tags.contains(it) }
+
+            if (entranceTags.isNotEmpty()) {
+                appendFacilityWithIcon(
+                    builder = builder,
+                    drawableRes = R.drawable.ic_barrier_entrance,
+                    text = entranceTags.joinToString(", "),
+                    addComma = hasPrevious
+                )
+            }
         }
 
-        routeFeatureElevator.visibility = if (hasElevator) View.VISIBLE else View.GONE
-        routeFeatureToilet.visibility = if (hasToilet) View.VISIBLE else View.GONE
-        routeFeatureParking.visibility = if (hasParking) View.VISIBLE else View.GONE
-        routeFeatureEntrance.visibility = if (hasEntrance) View.VISIBLE else View.GONE
-
-        val hasAnyFeature = hasElevator || hasToilet || hasParking || hasEntrance
-        routeFeatureRow.visibility = if (hasAnyFeature) View.VISIBLE else View.GONE
+        return builder
     }
 
-    private fun hideBarrierFacilityIcons() {
-        routeFeatureRow.visibility = View.GONE
-        routeFeatureElevator.visibility = View.GONE
-        routeFeatureToilet.visibility = View.GONE
-        routeFeatureParking.visibility = View.GONE
-        routeFeatureEntrance.visibility = View.GONE
+    private fun appendFacilityWithIcon(
+        builder: SpannableStringBuilder,
+        drawableRes: Int,
+        text: String,
+        addComma: Boolean
+    ) {
+        if (addComma) {
+            builder.append(", ")
+        }
+
+        val drawable = ContextCompat.getDrawable(this, drawableRes) ?: return
+        val size = dpToPx(28)
+        drawable.setBounds(0, 0, size, size)
+
+        val start = builder.length
+        builder.append("\uFFFC")
+        val end = builder.length
+
+        val imageSpan = ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM)
+        builder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        builder.append("\u00A0")
+        builder.append(text)
     }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+
     private fun formatDuration(durationSeconds: Double): String {
         val totalMinutes = kotlin.math.ceil(durationSeconds / 60.0).toInt().coerceAtLeast(1)
         val hours = totalMinutes / 60
@@ -1072,7 +1099,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         accountSectionController.refresh()
+
+        if (shouldRefreshHomeAlertOnResume) {
+            homeAlertBinder.refresh(sendTestNotification = false)
+        } else {
+            shouldRefreshHomeAlertOnResume = true
+        }
+
         if (tMapView != null) {
             startContinuousLocationTracking()
         }
