@@ -112,6 +112,7 @@
                     android:text="@string/nearby_shelters" />
 
                 <TextView
+                    android:id="@+id/btn_view_all_shelters"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/view_all"
@@ -154,8 +155,12 @@
 
                     <TextView
                         android:id="@+id/home_shelter_one_distance"
-                        style="@style/SafeRoute_DistanceText"
-                        android:text="@string/shelter_one_distance" />
+                        style="@style/SafeRoute_FilterChip"
+                        android:layout_marginEnd="0dp"
+                        android:background="@drawable/bg_chip_blue"
+                        android:minWidth="56dp"
+                        android:text="@string/route_shortcut"
+                        android:textColor="@android:color/white" />
                 </LinearLayout>
 
                 <View
@@ -191,8 +196,12 @@
 
                     <TextView
                         android:id="@+id/home_shelter_two_distance"
-                        style="@style/SafeRoute_DistanceText"
-                        android:text="@string/shelter_two_distance" />
+                        style="@style/SafeRoute_FilterChip"
+                        android:layout_marginEnd="0dp"
+                        android:background="@drawable/bg_chip_blue"
+                        android:minWidth="56dp"
+                        android:text="@string/route_shortcut"
+                        android:textColor="@android:color/white" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -300,15 +309,30 @@
                     android:src="@drawable/ic_search_24"
                     app:tint="@color/sr_text_muted" />
 
-                <TextView
+                <EditText
+                    android:id="@+id/search_shelter_input"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:text="@string/search_hint"
-                    android:textColor="@color/sr_text_muted"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/search_hint"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:textColor="@color/sr_text_primary"
+                    android:textColorHint="@color/sr_text_muted"
                     android:textSize="16sp" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/search_suggestions_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_medium"
+                android:orientation="vertical"
+                android:visibility="gone" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"

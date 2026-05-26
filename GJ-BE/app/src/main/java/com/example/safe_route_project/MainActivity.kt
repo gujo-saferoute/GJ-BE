@@ -15,12 +15,20 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
@@ -47,6 +55,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.skt.tmap.TMapData
+import com.skt.tmap.TMapInsets
 import com.skt.tmap.TMapPoint
 import com.skt.tmap.TMapView
 import com.skt.tmap.overlay.TMapMarkerItem
@@ -73,6 +82,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var filterEarthquakeChip: TextView
     private lateinit var filterRainChip: TextView
     private lateinit var filterSnowChip: TextView
+    private lateinit var searchShelterInput: EditText
+    private lateinit var searchSuggestionsContainer: LinearLayout
 
     private lateinit var shelterRepository: ShelterRepository
     private lateinit var homeAlertBinder: HomeAlertBinder
@@ -93,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     private var routeRequestVersion = 0
     private var activeDisasterType: DisasterType? = null
     private var barrierFreeOnly = false
+    private var isApplyingSearchSuggestion = false
 
     private var shelterPins: List<ShelterPin> = emptyList()
     private val selectedRouteSummaries = mutableMapOf<TMapData.TMapPathType, RouteResult>()
@@ -133,6 +145,8 @@ class MainActivity : AppCompatActivity() {
         filterEarthquakeChip = findViewById(R.id.filter_earthquake_chip)
         filterRainChip = findViewById(R.id.filter_rain_chip)
         filterSnowChip = findViewById(R.id.filter_snow_chip)
+        searchShelterInput = findViewById(R.id.search_shelter_input)
+        searchSuggestionsContainer = findViewById(R.id.search_suggestions_container)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -143,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         val homeLayout = findViewById<View>(R.id.home_layout)
         val mapScreen = findViewById<View>(R.id.map_screen)
         val settingsLayout = findViewById<View>(R.id.settings_layout)
+        val btnViewAllShelters = findViewById<TextView>(R.id.btn_view_all_shelters)
         val btnMyLocation = findViewById<FloatingActionButton>(R.id.btn_my_location)
         val switchDarkMode = findViewById<SwitchCompat>(R.id.switch_dark_mode)
         val switchDisasterTest = findViewById<SwitchCompat>(R.id.switch_disaster_test)
@@ -160,10 +175,10 @@ class MainActivity : AppCompatActivity() {
         homeShelterBinder = HomeShelterBinder(
             shelterOneName = findViewById(R.id.home_shelter_one_name),
             shelterOneDetail = findViewById(R.id.home_shelter_one_detail),
-            shelterOneDistance = findViewById(R.id.home_shelter_one_distance),
+            shelterOneAction = findViewById(R.id.home_shelter_one_distance),
             shelterTwoName = findViewById(R.id.home_shelter_two_name),
             shelterTwoDetail = findViewById(R.id.home_shelter_two_detail),
-            shelterTwoDistance = findViewById(R.id.home_shelter_two_distance),
+            shelterTwoAction = findViewById(R.id.home_shelter_two_distance),
         )
 
         mainScreenController = MainScreenController(
@@ -193,10 +208,15 @@ class MainActivity : AppCompatActivity() {
 
         observeShelters()
         setupDisasterFilterChips()
+        setupShelterSearch()
         renderHomeShelters()
 
         btnMyLocation.setOnClickListener {
             moveToMyLocation()
+        }
+
+        btnViewAllShelters.setOnClickListener {
+            showNearbySheltersDialog()
         }
 
         mainScreenController.bind(savedInstanceState) {
@@ -298,6 +318,119 @@ class MainActivity : AppCompatActivity() {
         filterRainChip.setOnClickListener { setActiveDisasterFilter(DisasterType.CIVIL_DEFENSE) }
         filterSnowChip.setOnClickListener { setActiveDisasterFilter(DisasterType.LANDSLIDE) }
         updateDisasterFilterChipStyle()
+    }
+
+    private fun setupShelterSearch() {
+        searchShelterInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (isApplyingSearchSuggestion) return
+                updateSearchSuggestions(s?.toString().orEmpty())
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+
+        searchShelterInput.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val query = searchShelterInput.text?.toString().orEmpty().trim()
+                val matchedShelter = findAddressMatchedShelters(query).firstOrNull()
+                if (matchedShelter != null) {
+                    selectSearchSuggestion(matchedShelter)
+                } else {
+                    Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun updateSearchSuggestions(rawQuery: String) {
+        val query = rawQuery.trim()
+        searchSuggestionsContainer.removeAllViews()
+
+        if (query.isBlank()) {
+            searchSuggestionsContainer.visibility = View.GONE
+            return
+        }
+
+        val suggestions = findAddressMatchedShelters(query).take(5)
+        if (suggestions.isEmpty()) {
+            searchSuggestionsContainer.visibility = View.GONE
+            return
+        }
+
+        suggestions.forEachIndexed { index, shelter ->
+            searchSuggestionsContainer.addView(createSearchSuggestionRow(shelter))
+
+            if (index != suggestions.lastIndex) {
+                searchSuggestionsContainer.addView(View(this).apply {
+                    setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.sr_separator))
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)))
+            }
+        }
+
+        searchSuggestionsContainer.visibility = View.VISIBLE
+    }
+
+    private fun findAddressMatchedShelters(query: String): List<ShelterPin> {
+        if (query.isBlank()) return emptyList()
+        val normalizedQuery = query.lowercase()
+
+        return shelterPins
+            .filter { shelter -> shelter.address.lowercase().contains(normalizedQuery) }
+            .sortedWith(
+                compareBy<ShelterPin> { shelter ->
+                    shelter.address.lowercase().indexOf(normalizedQuery).let { if (it < 0) Int.MAX_VALUE else it }
+                }.thenBy { shelter -> shelter.address.length }
+            )
+    }
+
+    private fun createSearchSuggestionRow(shelter: ShelterPin): View {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dpToPx(14), dpToPx(10), dpToPx(14), dpToPx(10))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { selectSearchSuggestion(shelter) }
+
+            addView(TextView(this@MainActivity).apply {
+                text = shelter.address
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_text_primary))
+                textSize = 14f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            })
+
+            addView(TextView(this@MainActivity).apply {
+                text = shelter.name
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_text_muted))
+                textSize = 12f
+                setPadding(0, dpToPx(3), 0, 0)
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            })
+        }
+    }
+
+    private fun selectSearchSuggestion(shelter: ShelterPin) {
+        isApplyingSearchSuggestion = true
+        searchShelterInput.setText(shelter.address)
+        searchShelterInput.setSelection(searchShelterInput.text?.length ?: 0)
+        isApplyingSearchSuggestion = false
+        searchSuggestionsContainer.visibility = View.GONE
+        hideKeyboard()
+        moveMapTo(shelter.point.latitude, shelter.point.longitude, 16, false)
+        showSelectedShelterRoute(shelter)
+    }
+
+    private fun hideKeyboard() {
+        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(searchShelterInput.windowToken, 0)
+        searchShelterInput.clearFocus()
     }
 
     private fun toggleBarrierFreeFilter() {
@@ -604,8 +737,126 @@ class MainActivity : AppCompatActivity() {
         homeShelterBinder.render(
             shelters = shelterPins,
             basePoint = basePoint,
-            routeDistances = homeRouteDistances
+            routeDistances = homeRouteDistances,
+            onRouteShortcutClick = ::openShelterRouteFromHome
         )
+    }
+
+    private fun showNearbySheltersDialog() {
+        val basePoint = currentTMapPoint ?: TMapPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+        val nearestShelters = shelterPins
+            .map { shelter ->
+                val distance = homeRouteDistances[shelter.markerId]
+                    ?: distanceBetween(basePoint, shelter.point).toDouble()
+                shelter to distance
+            }
+            .sortedBy { (_, distance) -> distance }
+            .take(10)
+
+        if (nearestShelters.isEmpty()) {
+            Toast.makeText(this, "표시할 대피소가 없습니다", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val listContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dpToPx(4), dpToPx(8), dpToPx(4), dpToPx(8))
+        }
+
+        var dialog: AlertDialog? = null
+        nearestShelters.forEachIndexed { index, (shelter, distanceMeters) ->
+            listContainer.addView(createNearbyShelterDialogRow(index + 1, shelter, distanceMeters) {
+                dialog?.dismiss()
+                openShelterRouteFromHome(shelter)
+            })
+
+            if (index != nearestShelters.lastIndex) {
+                listContainer.addView(View(this).apply {
+                    setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.sr_separator))
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)))
+            }
+        }
+
+        val scrollView = ScrollView(this).apply {
+            addView(listContainer)
+        }
+
+        dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.nearby_shelters_top_10))
+            .setView(scrollView)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.show()
+    }
+
+    private fun createNearbyShelterDialogRow(
+        rank: Int,
+        shelter: ShelterPin,
+        distanceMeters: Double,
+        onClick: () -> Unit
+    ): View {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { onClick() }
+        }
+
+        val textColumn = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        val nameView = TextView(this).apply {
+            text = "$rank. ${shelter.name}"
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_text_primary))
+            textSize = 16f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }
+
+        val detailView = TextView(this).apply {
+            text = buildNearbyShelterSummary(shelter, formatDistance(distanceMeters))
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_text_muted))
+            textSize = 13f
+            setPadding(0, dpToPx(4), 0, 0)
+        }
+
+        textColumn.addView(nameView)
+        textColumn.addView(detailView)
+        row.addView(
+            textColumn,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        )
+
+        row.addView(TextView(this).apply {
+            text = getString(R.string.route_shortcut)
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_blue))
+            textSize = 14f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        })
+
+        return row
+    }
+
+    private fun buildNearbyShelterSummary(shelter: ShelterPin, distanceText: String): CharSequence {
+        val builder = SpannableStringBuilder()
+        appendBarrierFreeFacilities(builder, shelter, useCompactEntranceLabel = true)
+
+        if (builder.isEmpty()) {
+            builder.append(getString(R.string.barrier_free_facility_none))
+        }
+
+        builder.append(" · ")
+        builder.append(distanceText)
+        return builder
+    }
+
+    private fun openShelterRouteFromHome(shelter: ShelterPin) {
+        bottomNav.selectedItemId = R.id.tab_map
+        mapContainer.post {
+            showSelectedShelterRoute(shelter)
+            moveMapTo(shelter.point.latitude, shelter.point.longitude, 15, true)
+        }
     }
 
     private fun requestHomeShelterRouteDistances(startPoint: TMapPoint) {
@@ -689,7 +940,7 @@ class MainActivity : AppCompatActivity() {
                                 val mapView = tMapView ?: return@runOnUiThread
                                 mapView.removeTMapPolyLine(SHELTER_ROUTE_LINE_ID)
                                 mapView.addTMapPolyLine(createRoutePolyLine(routeResult.points))
-                                fitRouteToScreen(routeResult.points)
+                                fitRouteToScreen(routeResult.points, startPoint, shelter.point)
                             }
                         }
 
@@ -809,12 +1060,25 @@ class MainActivity : AppCompatActivity() {
                 tagName.endsWith(":$expectedName")
     }
 
-    private fun fitRouteToScreen(points: ArrayList<TMapPoint>) {
+    private fun fitRouteToScreen(
+        points: ArrayList<TMapPoint>,
+        startPoint: TMapPoint,
+        destinationPoint: TMapPoint
+    ) {
         val mapView = tMapView ?: return
         if (points.isEmpty()) return
 
+        val boundsPoints = ArrayList<TMapPoint>(points.size + 2).apply {
+            add(startPoint)
+            addAll(points)
+            add(destinationPoint)
+        }
+
         try {
-            mapView.fitBounds(mapView.getBoundsFromPoints(points))
+            mapView.fitBounds(
+                mapView.getBoundsFromPoints(boundsPoints),
+                TMapInsets.of(dpToPx(24), dpToPx(120), dpToPx(24), dpToPx(190))
+            )
         } catch (_: RuntimeException) {
             val shelter = selectedShelter ?: return
             mapView.zoomToTMapPoint(currentTMapPoint ?: shelter.point, shelter.point)
@@ -824,7 +1088,6 @@ class MainActivity : AppCompatActivity() {
     private fun moveMapTo(latitude: Double, longitude: Double, zoom: Int, animate: Boolean) {
         val mapView = tMapView ?: return
         mapView.setCenterPoint(latitude, longitude, animate)
-        mapView.setLocationPoint(latitude, longitude)
         mapView.setZoomLevel(zoom)
     }
 
@@ -1046,6 +1309,67 @@ class MainActivity : AppCompatActivity() {
         }
 
         return builder
+    }
+
+    private fun appendBarrierFreeFacilities(
+        builder: SpannableStringBuilder,
+        shelter: ShelterPin,
+        useCompactEntranceLabel: Boolean
+    ) {
+        val tags = shelter.evalInfo
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+
+        if (!shelter.barrierFree || tags.isEmpty()) return
+
+        var hasPrevious = false
+
+        if (tags.contains("승강기")) {
+            appendFacilityWithIcon(
+                builder = builder,
+                drawableRes = R.drawable.ic_barrier_elevator,
+                text = "승강기",
+                addComma = hasPrevious
+            )
+            hasPrevious = true
+        }
+
+        if (tags.contains("장애인전용주차구역")) {
+            appendFacilityWithIcon(
+                builder = builder,
+                drawableRes = R.drawable.ic_barrier_parking,
+                text = "장애인전용주차구역",
+                addComma = hasPrevious
+            )
+            hasPrevious = true
+        }
+
+        if (tags.contains("장애인사용가능화장실")) {
+            appendFacilityWithIcon(
+                builder = builder,
+                drawableRes = R.drawable.ic_barrier_toilet,
+                text = "장애인사용가능화장실",
+                addComma = hasPrevious
+            )
+            hasPrevious = true
+        }
+
+        val entranceTags = listOf(
+            "주출입구 높이차이 제거",
+            "주출입구 접근로",
+            "주출입구(문)"
+        ).filter { tags.contains(it) }
+
+        if (entranceTags.isNotEmpty()) {
+            appendFacilityWithIcon(
+                builder = builder,
+                drawableRes = R.drawable.ic_barrier_entrance,
+                text = if (useCompactEntranceLabel) "주출입구" else entranceTags.joinToString(", "),
+                addComma = hasPrevious
+            )
+        }
     }
 
     private fun appendFacilityWithIcon(

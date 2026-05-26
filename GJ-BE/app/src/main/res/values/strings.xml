@@ -18,6 +18,9 @@
     <string name="shelter_two_name">방배2동 주민센터</string>
     <string name="shelter_two_detail">실내 구호소 · 수용인원 150명</string>
     <string name="shelter_two_distance">2.5km</string>
+    <string name="route_shortcut">경로</string>
+    <string name="barrier_free_facility_none">배리어프리 시설 없음</string>
+    <string name="nearby_shelters_top_10">가까운 대피소 10곳</string>
     <string name="weather_summary">오늘 기상 요약</string>
     <string name="rain_icon">비</string>
     <string name="heavy_rain_expected">많은 비 예상</string>

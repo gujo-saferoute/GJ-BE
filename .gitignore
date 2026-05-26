@@ -1,0 +1,14 @@
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+*.keystore
+*.jks
+*.key
+*.pem
+*firebase-adminsdk*.json
+serviceAccount*.json
+
+.env
+.env.*
