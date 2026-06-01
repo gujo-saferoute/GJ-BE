@@ -11,6 +11,8 @@
 .DS_Store
 /build
 /captures
+/.tmp.driveupload/
+/.tmp.drivedownload/
 .externalNativeBuild
 .cxx
 local.properties
