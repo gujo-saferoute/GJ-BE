@@ -146,6 +146,71 @@
                             style="@style/SafeRoute_ItemTitle"
                             android:text="@string/shelter_one_name" />
 
+                        <HorizontalScrollView
+                            android:id="@+id/home_shelter_one_barrier_scroll"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:overScrollMode="never"
+                            android:scrollbars="none"
+                            android:visibility="gone">
+
+                            <LinearLayout
+                                android:id="@+id/home_shelter_one_barrier_row"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_one_barrierfree_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:src="@drawable/ic_barrierfree"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_one_divider_icon"
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_marginStart="3dp"
+                                    android:layout_marginEnd="3dp"
+                                    android:src="@drawable/ic_divider"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_one_elevator_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_barrier_elevator"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_one_parking_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_barrier_parking"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_one_toilet_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_barrier_toilet"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_one_entrance_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:src="@drawable/ic_barrier_entrance"
+                                    android:visibility="gone" />
+                            </LinearLayout>
+                        </HorizontalScrollView>
+
                         <TextView
                             android:id="@+id/home_shelter_one_detail"
                             style="@style/SafeRoute_ItemSubtitle"
@@ -187,6 +252,71 @@
                             style="@style/SafeRoute_ItemTitle"
                             android:text="@string/shelter_two_name" />
 
+                        <HorizontalScrollView
+                            android:id="@+id/home_shelter_two_barrier_scroll"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:overScrollMode="never"
+                            android:scrollbars="none"
+                            android:visibility="gone">
+
+                            <LinearLayout
+                                android:id="@+id/home_shelter_two_barrier_row"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_two_barrierfree_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:src="@drawable/ic_barrierfree"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_two_divider_icon"
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_marginStart="3dp"
+                                    android:layout_marginEnd="3dp"
+                                    android:src="@drawable/ic_divider"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_two_elevator_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_barrier_elevator"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_two_parking_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_barrier_parking"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_two_toilet_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_barrier_toilet"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/home_shelter_two_entrance_icon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:src="@drawable/ic_barrier_entrance"
+                                    android:visibility="gone" />
+                            </LinearLayout>
+                        </HorizontalScrollView>
+
                         <TextView
                             android:id="@+id/home_shelter_two_detail"
                             style="@style/SafeRoute_ItemSubtitle"
@@ -203,70 +333,9 @@
                         android:text="@string/route_shortcut"
                         android:textColor="@android:color/white" />
                 </LinearLayout>
+
             </LinearLayout>
 
-            <TextView
-                style="@style/SafeRoute_SectionLabel"
-                android:layout_marginTop="24dp"
-                android:text="@string/weather_summary" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_card_large"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp">
-
-                <ImageView
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
-                    android:background="@drawable/bg_icon_gray"
-                    android:contentDescription="@string/weather_summary"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_cloud_rain_24" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/SafeRoute_ItemTitle"
-                        android:text="@string/heavy_rain_expected" />
-
-                    <TextView
-                        style="@style/SafeRoute_ItemSubtitle"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/rainfall_detail" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/weather_temperature"
-                        android:textColor="@color/sr_text_primary"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/wind_speed"
-                        android:textColor="@color/sr_text_muted"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
@@ -412,6 +481,70 @@
                 style="@style/SafeRoute_ItemTitle"
                 android:text="Shelter route" />
 
+            <HorizontalScrollView
+                android:id="@+id/route_info_barrier_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/route_info_barrier_row"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/route_info_barrierfree_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_barrierfree"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/route_info_divider_icon"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:src="@drawable/ic_divider"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/route_info_elevator_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_barrier_elevator"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/route_info_parking_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_barrier_parking"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/route_info_toilet_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_barrier_toilet"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/route_info_entrance_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_barrier_entrance"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <TextView
                 android:id="@+id/route_info_detail"

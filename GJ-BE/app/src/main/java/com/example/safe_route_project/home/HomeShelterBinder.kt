@@ -1,20 +1,34 @@
 package com.example.safe_route_project.home
 
 import android.location.Location
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ImageSpan
+import android.view.View
+import android.widget.ImageView
+import android.widget.HorizontalScrollView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import com.example.safe_route_project.R
 import com.example.safe_route_project.data.shelter.ShelterPin
 import com.skt.tmap.TMapPoint
 
 class HomeShelterBinder(
     private val shelterOneName: TextView,
+    private val shelterOneBarrierScroll: HorizontalScrollView,
+    private val shelterOneBarrierFreeIcon: ImageView,
+    private val shelterOneDividerIcon: ImageView,
+    private val shelterOneElevatorIcon: ImageView,
+    private val shelterOneParkingIcon: ImageView,
+    private val shelterOneToiletIcon: ImageView,
+    private val shelterOneEntranceIcon: ImageView,
     private val shelterOneDetail: TextView,
     private val shelterOneAction: TextView,
+
     private val shelterTwoName: TextView,
+    private val shelterTwoBarrierScroll: HorizontalScrollView,
+    private val shelterTwoBarrierFreeIcon: ImageView,
+    private val shelterTwoDividerIcon: ImageView,
+    private val shelterTwoElevatorIcon: ImageView,
+    private val shelterTwoParkingIcon: ImageView,
+    private val shelterTwoToiletIcon: ImageView,
+    private val shelterTwoEntranceIcon: ImageView,
     private val shelterTwoDetail: TextView,
     private val shelterTwoAction: TextView,
 ) {
@@ -34,25 +48,46 @@ class HomeShelterBinder(
             .sortedBy { (_, distance) -> distance }
 
         bindRow(
-            nearestShelters.getOrNull(0),
-            shelterOneName,
-            shelterOneDetail,
-            shelterOneAction,
-            onRouteShortcutClick
+            shelterDistance = nearestShelters.getOrNull(0),
+            nameView = shelterOneName,
+            barrierScroll = shelterOneBarrierScroll,
+            barrierFreeIcon = shelterOneBarrierFreeIcon,
+            dividerIcon = shelterOneDividerIcon,
+            elevatorIcon = shelterOneElevatorIcon,
+            parkingIcon = shelterOneParkingIcon,
+            toiletIcon = shelterOneToiletIcon,
+            entranceIcon = shelterOneEntranceIcon,
+            detailView = shelterOneDetail,
+            actionView = shelterOneAction,
+            onRouteShortcutClick = onRouteShortcutClick
         )
 
         bindRow(
-            nearestShelters.getOrNull(1),
-            shelterTwoName,
-            shelterTwoDetail,
-            shelterTwoAction,
-            onRouteShortcutClick
+            shelterDistance = nearestShelters.getOrNull(1),
+            nameView = shelterTwoName,
+            barrierScroll = shelterTwoBarrierScroll,
+            barrierFreeIcon = shelterTwoBarrierFreeIcon,
+            dividerIcon = shelterTwoDividerIcon,
+            elevatorIcon = shelterTwoElevatorIcon,
+            parkingIcon = shelterTwoParkingIcon,
+            toiletIcon = shelterTwoToiletIcon,
+            entranceIcon = shelterTwoEntranceIcon,
+            detailView = shelterTwoDetail,
+            actionView = shelterTwoAction,
+            onRouteShortcutClick = onRouteShortcutClick
         )
     }
 
     private fun bindRow(
         shelterDistance: Pair<ShelterPin, Double>?,
         nameView: TextView,
+        barrierScroll: HorizontalScrollView,
+        barrierFreeIcon: ImageView,
+        dividerIcon: ImageView,
+        elevatorIcon: ImageView,
+        parkingIcon: ImageView,
+        toiletIcon: ImageView,
+        entranceIcon: ImageView,
         detailView: TextView,
         actionView: TextView,
         onRouteShortcutClick: (ShelterPin) -> Unit
@@ -60,6 +95,15 @@ class HomeShelterBinder(
         if (shelterDistance == null) {
             nameView.text = "-"
             detailView.text = "표시할 대피소가 없습니다"
+            hideBarrierIcons(
+                barrierScroll,
+                barrierFreeIcon,
+                dividerIcon,
+                elevatorIcon,
+                parkingIcon,
+                toiletIcon,
+                entranceIcon
+            )
             actionView.text = actionView.context.getString(R.string.route_shortcut)
             actionView.isEnabled = false
             actionView.alpha = 0.4f
@@ -69,90 +113,119 @@ class HomeShelterBinder(
 
         val (shelter, distanceMeters) = shelterDistance
         nameView.text = shelter.name
-        detailView.text = buildFacilitySummary(detailView, shelter, formatDistance(distanceMeters))
-        actionView.text = actionView.context.getString(R.string.route_shortcut)
+        detailView.visibility = View.VISIBLE
+        detailView.text = barrierFacilityText(shelter)
+        bindBarrierIcons(
+            shelter,
+            barrierScroll,
+            barrierFreeIcon,
+            dividerIcon,
+            elevatorIcon,
+            parkingIcon,
+            toiletIcon,
+            entranceIcon
+        )
+
+        actionView.text = formatDistance(distanceMeters)
         actionView.isEnabled = true
         actionView.alpha = 1f
         actionView.setOnClickListener { onRouteShortcutClick(shelter) }
     }
 
-    private fun buildFacilitySummary(
-        view: TextView,
-        shelter: ShelterPin,
-        distanceText: String
-    ): CharSequence {
-        val builder = SpannableStringBuilder()
+
+    private fun barrierFacilityText(shelter: ShelterPin): String {
+        if (!shelter.barrierFree) {
+            return shelterOneDetail.context.getString(R.string.barrier_free_facility_none)
+        }
+
         val tags = shelter.evalInfo
             .split(",")
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .distinct()
 
-        if (shelter.barrierFree && tags.isNotEmpty()) {
-            var hasPrevious = false
-
-            if (tags.contains("승강기")) {
-                appendFacilityWithIcon(builder, view, R.drawable.ic_barrier_elevator, "승강기", hasPrevious)
-                hasPrevious = true
-            }
-
-            if (tags.contains("장애인전용주차구역")) {
-                appendFacilityWithIcon(builder, view, R.drawable.ic_barrier_parking, "장애인전용주차구역", hasPrevious)
-                hasPrevious = true
-            }
-
-            if (tags.contains("장애인사용가능화장실")) {
-                appendFacilityWithIcon(builder, view, R.drawable.ic_barrier_toilet, "장애인사용가능화장실", hasPrevious)
-                hasPrevious = true
-            }
-
-            val entranceTags = listOf(
+        val labels = mutableListOf<String>()
+        if (tags.contains("승강기")) labels.add("승강기")
+        if (tags.contains("장애인전용주차구역")) labels.add("장애인전용주차구역")
+        if (tags.contains("장애인사용가능화장실")) labels.add("장애인사용가능화장실")
+        labels.addAll(
+            listOf(
                 "주출입구 높이차이 제거",
                 "주출입구 접근로",
                 "주출입구(문)"
             ).filter { tags.contains(it) }
-
-            if (entranceTags.isNotEmpty()) {
-                appendFacilityWithIcon(builder, view, R.drawable.ic_barrier_entrance, "주출입구", hasPrevious)
-            }
-        }
-
-        if (builder.isEmpty()) {
-            builder.append(view.context.getString(R.string.barrier_free_facility_none))
-        }
-
-        builder.append(" · ")
-        builder.append(distanceText)
-        return builder
-    }
-
-    private fun appendFacilityWithIcon(
-        builder: SpannableStringBuilder,
-        view: TextView,
-        drawableRes: Int,
-        text: String,
-        addComma: Boolean
-    ) {
-        if (addComma) {
-            builder.append(", ")
-        }
-
-        val drawable = ContextCompat.getDrawable(view.context, drawableRes) ?: return
-        val size = (20 * view.resources.displayMetrics.density).toInt()
-        drawable.setBounds(0, 0, size, size)
-
-        val start = builder.length
-        builder.append("\uFFFC")
-        val end = builder.length
-        builder.setSpan(
-            ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM),
-            start,
-            end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        builder.append("\u00A0")
-        builder.append(text)
+        return labels.ifEmpty {
+            listOf(shelterOneDetail.context.getString(R.string.barrier_free_facility_none))
+        }.joinToString(", ")
+    }
+
+    private fun bindBarrierIcons(
+        shelter: ShelterPin,
+        barrierScroll: HorizontalScrollView,
+        barrierFreeIcon: ImageView,
+        dividerIcon: ImageView,
+        elevatorIcon: ImageView,
+        parkingIcon: ImageView,
+        toiletIcon: ImageView,
+        entranceIcon: ImageView
+    ) {
+        val tags = shelter.evalInfo
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+
+        val hasElevator = tags.contains("승강기")
+        val hasParking = tags.contains("장애인전용주차구역")
+        val hasToilet = tags.contains("장애인사용가능화장실")
+        val hasEntrance = listOf(
+            "주출입구 높이차이 제거",
+            "주출입구 접근로",
+            "주출입구(문)"
+        ).any { tags.contains(it) }
+
+        val hasAny = shelter.barrierFree && (hasElevator || hasParking || hasToilet || hasEntrance)
+
+        if (!hasAny) {
+            hideBarrierIcons(
+                barrierScroll,
+                barrierFreeIcon,
+                dividerIcon,
+                elevatorIcon,
+                parkingIcon,
+                toiletIcon,
+                entranceIcon
+            )
+            return
+        }
+
+        barrierScroll.visibility = View.VISIBLE
+        barrierFreeIcon.visibility = View.VISIBLE
+        dividerIcon.visibility = View.VISIBLE
+        elevatorIcon.visibility = if (hasElevator) View.VISIBLE else View.GONE
+        parkingIcon.visibility = if (hasParking) View.VISIBLE else View.GONE
+        toiletIcon.visibility = if (hasToilet) View.VISIBLE else View.GONE
+        entranceIcon.visibility = if (hasEntrance) View.VISIBLE else View.GONE
+    }
+
+    private fun hideBarrierIcons(
+        barrierScroll: HorizontalScrollView,
+        barrierFreeIcon: ImageView,
+        dividerIcon: ImageView,
+        elevatorIcon: ImageView,
+        parkingIcon: ImageView,
+        toiletIcon: ImageView,
+        entranceIcon: ImageView
+    ) {
+        barrierScroll.visibility = View.GONE
+        barrierFreeIcon.visibility = View.GONE
+        dividerIcon.visibility = View.GONE
+        elevatorIcon.visibility = View.GONE
+        parkingIcon.visibility = View.GONE
+        toiletIcon.visibility = View.GONE
+        entranceIcon.visibility = View.GONE
     }
 
     private fun distanceBetween(startPoint: TMapPoint, endPoint: TMapPoint): Float {

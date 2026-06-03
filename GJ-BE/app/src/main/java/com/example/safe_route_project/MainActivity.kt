@@ -20,6 +20,8 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
+import android.widget.HorizontalScrollView
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -67,7 +69,13 @@ import org.w3c.dom.Element
 
 class MainActivity : AppCompatActivity() {
 
-
+    private lateinit var routeInfoBarrierScroll: HorizontalScrollView
+    private lateinit var routeInfoBarrierFreeIcon: ImageView
+    private lateinit var routeInfoDividerIcon: ImageView
+    private lateinit var routeInfoElevatorIcon: ImageView
+    private lateinit var routeInfoParkingIcon: ImageView
+    private lateinit var routeInfoToiletIcon: ImageView
+    private lateinit var routeInfoEntranceIcon: ImageView
     private lateinit var accountSectionController: AccountSectionController
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
@@ -140,6 +148,13 @@ class MainActivity : AppCompatActivity() {
         routeInfoTitle = findViewById(R.id.route_info_title)
         routeInfoDetail = findViewById(R.id.route_info_detail)
         routeInfoDistance = findViewById(R.id.route_info_distance)
+        routeInfoBarrierScroll = findViewById(R.id.route_info_barrier_scroll)
+        routeInfoBarrierFreeIcon = findViewById(R.id.route_info_barrierfree_icon)
+        routeInfoDividerIcon = findViewById(R.id.route_info_divider_icon)
+        routeInfoElevatorIcon = findViewById(R.id.route_info_elevator_icon)
+        routeInfoParkingIcon = findViewById(R.id.route_info_parking_icon)
+        routeInfoToiletIcon = findViewById(R.id.route_info_toilet_icon)
+        routeInfoEntranceIcon = findViewById(R.id.route_info_entrance_icon)
         filterBarrierFreeChip = findViewById(R.id.filter_barrier_free_chip)
         filterAllChip = findViewById(R.id.filter_all_chip)
         filterEarthquakeChip = findViewById(R.id.filter_earthquake_chip)
@@ -174,9 +189,24 @@ class MainActivity : AppCompatActivity() {
 
         homeShelterBinder = HomeShelterBinder(
             shelterOneName = findViewById(R.id.home_shelter_one_name),
+            shelterOneBarrierScroll = findViewById(R.id.home_shelter_one_barrier_scroll),
+            shelterOneBarrierFreeIcon = findViewById(R.id.home_shelter_one_barrierfree_icon),
+            shelterOneDividerIcon = findViewById(R.id.home_shelter_one_divider_icon),
+            shelterOneElevatorIcon = findViewById(R.id.home_shelter_one_elevator_icon),
+            shelterOneParkingIcon = findViewById(R.id.home_shelter_one_parking_icon),
+            shelterOneToiletIcon = findViewById(R.id.home_shelter_one_toilet_icon),
+            shelterOneEntranceIcon = findViewById(R.id.home_shelter_one_entrance_icon),
             shelterOneDetail = findViewById(R.id.home_shelter_one_detail),
             shelterOneAction = findViewById(R.id.home_shelter_one_distance),
+
             shelterTwoName = findViewById(R.id.home_shelter_two_name),
+            shelterTwoBarrierScroll = findViewById(R.id.home_shelter_two_barrier_scroll),
+            shelterTwoBarrierFreeIcon = findViewById(R.id.home_shelter_two_barrierfree_icon),
+            shelterTwoDividerIcon = findViewById(R.id.home_shelter_two_divider_icon),
+            shelterTwoElevatorIcon = findViewById(R.id.home_shelter_two_elevator_icon),
+            shelterTwoParkingIcon = findViewById(R.id.home_shelter_two_parking_icon),
+            shelterTwoToiletIcon = findViewById(R.id.home_shelter_two_toilet_icon),
+            shelterTwoEntranceIcon = findViewById(R.id.home_shelter_two_entrance_icon),
             shelterTwoDetail = findViewById(R.id.home_shelter_two_detail),
             shelterTwoAction = findViewById(R.id.home_shelter_two_distance),
         )
@@ -458,6 +488,7 @@ class MainActivity : AppCompatActivity() {
     private fun clearSelectedRoute() {
         selectedShelter = null
         routeInfoCard.visibility = View.GONE
+        hideRouteBarrierIcons()
         tMapView?.removeTMapPolyLine(SHELTER_ROUTE_LINE_ID)
         lastRouteShelter = null
         lastRouteSummaryText = null
@@ -815,14 +846,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         val detailView = TextView(this).apply {
-            text = buildNearbyShelterSummary(shelter, formatDistance(distanceMeters))
+            text = barrierFacilityText(shelter)
             setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_text_muted))
             textSize = 13f
             setPadding(0, dpToPx(4), 0, 0)
         }
 
+        val distanceView = TextView(this).apply {
+            text = formatDistance(distanceMeters)
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.sr_text_muted))
+            textSize = 12f
+            setPadding(0, dpToPx(3), 0, 0)
+        }
+
         textColumn.addView(nameView)
+        createBarrierIconStrip(shelter, iconSizeDp = 18, dividerSizeDp = 14)?.let { iconRow ->
+            textColumn.addView(iconRow)
+        }
         textColumn.addView(detailView)
+        textColumn.addView(distanceView)
         row.addView(
             textColumn,
             LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -838,17 +880,8 @@ class MainActivity : AppCompatActivity() {
         return row
     }
 
-    private fun buildNearbyShelterSummary(shelter: ShelterPin, distanceText: String): CharSequence {
-        val builder = SpannableStringBuilder()
-        appendBarrierFreeFacilities(builder, shelter, useCompactEntranceLabel = true)
-
-        if (builder.isEmpty()) {
-            builder.append(getString(R.string.barrier_free_facility_none))
-        }
-
-        builder.append(" · ")
-        builder.append(distanceText)
-        return builder
+    private fun buildNearbyShelterSummary(shelter: ShelterPin): String {
+        return barrierFacilityText(shelter)
     }
 
     private fun openShelterRouteFromHome(shelter: ShelterPin) {
@@ -882,8 +915,9 @@ class MainActivity : AppCompatActivity() {
 
         val currentPoint = currentTMapPoint
         if (currentPoint == null) {
-            routeInfoDetail.text = "${shelter.address}\n현재 위치를 확인하는 중입니다"
-            routeInfoDistance.text = "경로 정보 계산 대기"
+            updateRouteBarrierIcons(shelter)
+            routeInfoDetail.text = barrierFacilityText(shelter)
+            routeInfoDistance.text = "현재 위치를 확인하는 중입니다"
             return
         }
 
@@ -909,7 +943,8 @@ class MainActivity : AppCompatActivity() {
         selectedRouteSummaries.clear()
         selectedRouteRequestsFinished.clear()
 
-        routeInfoDetail.text = "${shelter.disasterLabels()} 대피소까지의 경로를 계산하는 중입니다"
+        updateRouteBarrierIcons(shelter)
+        routeInfoDetail.text = barrierFacilityText(shelter)
         routeInfoDistance.text = "자동차 및 보행 경로 계산 중"
 
         requestSingleRouteSummary(requestVersion, shelter, startPoint, TMapData.TMapPathType.CAR_PATH)
@@ -950,6 +985,129 @@ class MainActivity : AppCompatActivity() {
             }
         )
     }
+    private fun updateRouteBarrierIcons(shelter: ShelterPin?) {
+        if (shelter == null) {
+            hideRouteBarrierIcons()
+            return
+        }
+
+        val state = getBarrierFacilityState(shelter)
+        if (!state.hasAny) {
+            hideRouteBarrierIcons()
+            return
+        }
+
+        routeInfoBarrierScroll.visibility = View.VISIBLE
+        routeInfoBarrierFreeIcon.visibility = View.VISIBLE
+        routeInfoDividerIcon.visibility = View.VISIBLE
+        routeInfoElevatorIcon.visibility = if (state.hasElevator) View.VISIBLE else View.GONE
+        routeInfoParkingIcon.visibility = if (state.hasParking) View.VISIBLE else View.GONE
+        routeInfoToiletIcon.visibility = if (state.hasToilet) View.VISIBLE else View.GONE
+        routeInfoEntranceIcon.visibility = if (state.hasEntrance) View.VISIBLE else View.GONE
+    }
+
+    private fun hideRouteBarrierIcons() {
+        routeInfoBarrierScroll.visibility = View.GONE
+        routeInfoBarrierFreeIcon.visibility = View.GONE
+        routeInfoDividerIcon.visibility = View.GONE
+        routeInfoElevatorIcon.visibility = View.GONE
+        routeInfoParkingIcon.visibility = View.GONE
+        routeInfoToiletIcon.visibility = View.GONE
+        routeInfoEntranceIcon.visibility = View.GONE
+    }
+
+    private fun createBarrierIconStrip(
+        shelter: ShelterPin,
+        iconSizeDp: Int,
+        dividerSizeDp: Int
+    ): View? {
+        val state = getBarrierFacilityState(shelter)
+        if (!state.hasAny) return null
+
+        val scrollView = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            overScrollMode = View.OVER_SCROLL_NEVER
+            setPadding(0, dpToPx(6), 0, 0)
+        }
+
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        fun addIcon(drawableRes: Int, sizeDp: Int, marginEndDp: Int = 6) {
+            row.addView(
+                ImageView(this).apply {
+                    setImageResource(drawableRes)
+                    adjustViewBounds = true
+                },
+                LinearLayout.LayoutParams(dpToPx(sizeDp), dpToPx(sizeDp)).apply {
+                    marginEnd = dpToPx(marginEndDp)
+                }
+            )
+        }
+
+        addIcon(R.drawable.ic_barrierfree, iconSizeDp, marginEndDp = 3)
+        addIcon(R.drawable.ic_divider, dividerSizeDp, marginEndDp = 3)
+        if (state.hasElevator) addIcon(R.drawable.ic_barrier_elevator, iconSizeDp)
+        if (state.hasParking) addIcon(R.drawable.ic_barrier_parking, iconSizeDp)
+        if (state.hasToilet) addIcon(R.drawable.ic_barrier_toilet, iconSizeDp)
+        if (state.hasEntrance) addIcon(R.drawable.ic_barrier_entrance, iconSizeDp, marginEndDp = 0)
+
+        scrollView.addView(row)
+        return scrollView
+    }
+
+    private fun getBarrierFacilityState(shelter: ShelterPin): BarrierFacilityState {
+        val tags = shelter.evalInfo
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+
+        val hasElevator = tags.contains("승강기")
+        val hasParking = tags.contains("장애인전용주차구역")
+        val hasToilet = tags.contains("장애인사용가능화장실")
+        val hasEntrance = entranceFacilityLabels(tags).isNotEmpty()
+
+        return BarrierFacilityState(
+            hasElevator = hasElevator,
+            hasParking = hasParking,
+            hasToilet = hasToilet,
+            hasEntrance = hasEntrance,
+            hasAny = shelter.barrierFree && (hasElevator || hasParking || hasToilet || hasEntrance)
+        )
+    }
+
+    private fun barrierFacilityText(shelter: ShelterPin): String {
+        if (!shelter.barrierFree) {
+            return getString(R.string.barrier_free_facility_none)
+        }
+
+        val tags = shelter.evalInfo
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+
+        val labels = mutableListOf<String>()
+        if (tags.contains("승강기")) labels.add("승강기")
+        if (tags.contains("장애인전용주차구역")) labels.add("장애인전용주차구역")
+        if (tags.contains("장애인사용가능화장실")) labels.add("장애인사용가능화장실")
+        labels.addAll(entranceFacilityLabels(tags))
+
+        return labels.ifEmpty {
+            listOf(getString(R.string.barrier_free_facility_none))
+        }.joinToString(", ")
+    }
+
+    private fun entranceFacilityLabels(tags: List<String>): List<String> {
+        return listOf(
+            "주출입구 높이차이 제거",
+            "주출입구 접근로",
+            "주출입구(문)"
+        ).filter { tags.contains(it) }
+    }
 
     private fun updateRouteSummaryCard(shelter: ShelterPin) {
         val carRoute = selectedRouteSummaries[TMapData.TMapPathType.CAR_PATH]
@@ -959,13 +1117,15 @@ class MainActivity : AppCompatActivity() {
             if (selectedRouteRequestsFinished.size >= 2) {
                 showRouteFailure()
             } else {
-                routeInfoDetail.text = "${shelter.disasterLabels()} 대피소까지의 경로 응답을 기다리는 중입니다"
+                updateRouteBarrierIcons(shelter)
+                routeInfoDetail.text = barrierFacilityText(shelter)
                 routeInfoDistance.text = "자동차 및 보행 경로 계산 중"
             }
             return
         }
 
-        routeInfoDetail.text = buildRouteDetailText(shelter)
+        updateRouteBarrierIcons(shelter)
+        routeInfoDetail.text = barrierFacilityText(shelter)
 
         val displayDistance = pedestrianRoute?.distanceMeters ?: carRoute?.distanceMeters
         val routeSummaryText = listOfNotNull(
@@ -985,7 +1145,8 @@ class MainActivity : AppCompatActivity() {
         val shelter = selectedShelter
 
         if (shelter != null) {
-            routeInfoDetail.text = buildRouteDetailText(shelter)
+            updateRouteBarrierIcons(shelter)
+            routeInfoDetail.text = barrierFacilityText(shelter)
             routeInfoDistance.text = "경로 계산 실패 (네트워크 오류)"
         } else {
             routeInfoDetail.text = "경로 응답이 없어 거리와 시간을 계산할 수 없습니다"
@@ -1245,70 +1406,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildRouteDetailText(shelter: ShelterPin): CharSequence {
-        val builder = SpannableStringBuilder()
-
-        builder.append(shelter.address)
-        builder.append("\n")
-        builder.append(shelter.disasterLabels())
-
-        val tags = shelter.evalInfo
-            .split(",")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .distinct()
-
-        if (shelter.barrierFree && tags.isNotEmpty()) {
-            builder.append("\n")
-
-            var hasPrevious = false
-
-            if (tags.contains("승강기")) {
-                appendFacilityWithIcon(
-                    builder = builder,
-                    drawableRes = R.drawable.ic_barrier_elevator,
-                    text = "승강기",
-                    addComma = hasPrevious
-                )
-                hasPrevious = true
-            }
-
-            if (tags.contains("장애인전용주차구역")) {
-                appendFacilityWithIcon(
-                    builder = builder,
-                    drawableRes = R.drawable.ic_barrier_parking,
-                    text = "장애인전용주차구역",
-                    addComma = hasPrevious
-                )
-                hasPrevious = true
-            }
-
-            if (tags.contains("장애인사용가능화장실")) {
-                appendFacilityWithIcon(
-                    builder = builder,
-                    drawableRes = R.drawable.ic_barrier_toilet,
-                    text = "장애인사용가능화장실",
-                    addComma = hasPrevious
-                )
-                hasPrevious = true
-            }
-
-            val entranceTags = listOf(
-                "주출입구 높이차이 제거",
-                "주출입구 접근로",
-                "주출입구(문)"
-            ).filter { tags.contains(it) }
-
-            if (entranceTags.isNotEmpty()) {
-                appendFacilityWithIcon(
-                    builder = builder,
-                    drawableRes = R.drawable.ic_barrier_entrance,
-                    text = entranceTags.joinToString(", "),
-                    addComma = hasPrevious
-                )
-            }
-        }
-
-        return builder
+        return barrierFacilityText(shelter)
     }
 
     private fun appendBarrierFreeFacilities(
@@ -1316,60 +1414,7 @@ class MainActivity : AppCompatActivity() {
         shelter: ShelterPin,
         useCompactEntranceLabel: Boolean
     ) {
-        val tags = shelter.evalInfo
-            .split(",")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .distinct()
-
-        if (!shelter.barrierFree || tags.isEmpty()) return
-
-        var hasPrevious = false
-
-        if (tags.contains("승강기")) {
-            appendFacilityWithIcon(
-                builder = builder,
-                drawableRes = R.drawable.ic_barrier_elevator,
-                text = "승강기",
-                addComma = hasPrevious
-            )
-            hasPrevious = true
-        }
-
-        if (tags.contains("장애인전용주차구역")) {
-            appendFacilityWithIcon(
-                builder = builder,
-                drawableRes = R.drawable.ic_barrier_parking,
-                text = "장애인전용주차구역",
-                addComma = hasPrevious
-            )
-            hasPrevious = true
-        }
-
-        if (tags.contains("장애인사용가능화장실")) {
-            appendFacilityWithIcon(
-                builder = builder,
-                drawableRes = R.drawable.ic_barrier_toilet,
-                text = "장애인사용가능화장실",
-                addComma = hasPrevious
-            )
-            hasPrevious = true
-        }
-
-        val entranceTags = listOf(
-            "주출입구 높이차이 제거",
-            "주출입구 접근로",
-            "주출입구(문)"
-        ).filter { tags.contains(it) }
-
-        if (entranceTags.isNotEmpty()) {
-            appendFacilityWithIcon(
-                builder = builder,
-                drawableRes = R.drawable.ic_barrier_entrance,
-                text = if (useCompactEntranceLabel) "주출입구" else entranceTags.joinToString(", "),
-                addComma = hasPrevious
-            )
-        }
+        builder.append(barrierFacilityText(shelter))
     }
 
     private fun appendFacilityWithIcon(
@@ -1378,22 +1423,7 @@ class MainActivity : AppCompatActivity() {
         text: String,
         addComma: Boolean
     ) {
-        if (addComma) {
-            builder.append(", ")
-        }
-
-        val drawable = ContextCompat.getDrawable(this, drawableRes) ?: return
-        val size = dpToPx(28)
-        drawable.setBounds(0, 0, size, size)
-
-        val start = builder.length
-        builder.append("\uFFFC")
-        val end = builder.length
-
-        val imageSpan = ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM)
-        builder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        builder.append("\u00A0")
+        if (addComma) builder.append(", ")
         builder.append(text)
     }
 
@@ -1445,6 +1475,14 @@ class MainActivity : AppCompatActivity() {
         tMapView?.onDestroy()
         super.onDestroy()
     }
+
+    private data class BarrierFacilityState(
+        val hasElevator: Boolean,
+        val hasParking: Boolean,
+        val hasToilet: Boolean,
+        val hasEntrance: Boolean,
+        val hasAny: Boolean
+    )
 
     companion object {
         const val EXTRA_OPEN_TAB = "open_tab"
