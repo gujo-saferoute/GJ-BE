@@ -916,7 +916,7 @@ class MainActivity : AppCompatActivity() {
         val currentPoint = currentTMapPoint
         if (currentPoint == null) {
             updateRouteBarrierIcons(shelter)
-            routeInfoDetail.text = barrierFacilityText(shelter)
+            routeInfoDetail.text = buildRouteDetailText(shelter)
             routeInfoDistance.text = "현재 위치를 확인하는 중입니다"
             return
         }
@@ -944,7 +944,7 @@ class MainActivity : AppCompatActivity() {
         selectedRouteRequestsFinished.clear()
 
         updateRouteBarrierIcons(shelter)
-        routeInfoDetail.text = barrierFacilityText(shelter)
+        routeInfoDetail.text = buildRouteDetailText(shelter)
         routeInfoDistance.text = "자동차 및 보행 경로 계산 중"
 
         requestSingleRouteSummary(requestVersion, shelter, startPoint, TMapData.TMapPathType.CAR_PATH)
@@ -1118,14 +1118,14 @@ class MainActivity : AppCompatActivity() {
                 showRouteFailure()
             } else {
                 updateRouteBarrierIcons(shelter)
-                routeInfoDetail.text = barrierFacilityText(shelter)
+                routeInfoDetail.text = buildRouteDetailText(shelter)
                 routeInfoDistance.text = "자동차 및 보행 경로 계산 중"
             }
             return
         }
 
         updateRouteBarrierIcons(shelter)
-        routeInfoDetail.text = barrierFacilityText(shelter)
+        routeInfoDetail.text = buildRouteDetailText(shelter)
 
         val displayDistance = pedestrianRoute?.distanceMeters ?: carRoute?.distanceMeters
         val routeSummaryText = listOfNotNull(
@@ -1406,7 +1406,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildRouteDetailText(shelter: ShelterPin): CharSequence {
-        return barrierFacilityText(shelter)
+        return "${shelter.address}\n${barrierFacilityText(shelter)}"
     }
 
     private fun appendBarrierFreeFacilities(
