@@ -46,6 +46,7 @@ import com.example.safe_route_project.home.HomeAlertBinder
 import com.example.safe_route_project.home.HomeShelterBinder
 import com.example.safe_route_project.main.MainScreenController
 import com.example.safe_route_project.settings.AccountSectionController
+import com.example.safe_route_project.settings.AppThemeManager
 import com.example.safe_route_project.settings.DisasterTestManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -287,6 +288,14 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "대피소 데이터를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
             }
         )
+    }
+
+    private fun barrierDividerDrawableRes(): Int {
+        return if (AppThemeManager.isDarkModeEnabled(this)) {
+            R.drawable.ic_divider_dark
+        } else {
+            R.drawable.ic_divider
+        }
     }
 
     private fun startTmap() {
@@ -1002,6 +1011,7 @@ class MainActivity : AppCompatActivity() {
 
         routeInfoBarrierScroll.visibility = View.VISIBLE
         routeInfoBarrierFreeIcon.visibility = View.VISIBLE
+        routeInfoDividerIcon.setImageResource(barrierDividerDrawableRes())
         routeInfoDividerIcon.visibility = View.VISIBLE
         routeInfoElevatorIcon.visibility = if (state.hasElevator) View.VISIBLE else View.GONE
         routeInfoParkingIcon.visibility = if (state.hasParking) View.VISIBLE else View.GONE
@@ -1051,7 +1061,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         addIcon(R.drawable.ic_barrierfree, iconSizeDp, marginEndDp = 3)
-        addIcon(R.drawable.ic_divider, dividerSizeDp, marginEndDp = 3)
+        addIcon(barrierDividerDrawableRes(), dividerSizeDp, marginEndDp = 3)
         if (state.hasElevator) addIcon(R.drawable.ic_barrier_elevator, iconSizeDp)
         if (state.hasParking) addIcon(R.drawable.ic_barrier_parking, iconSizeDp)
         if (state.hasToilet) addIcon(R.drawable.ic_barrier_toilet, iconSizeDp)

@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.example.safe_route_project.R
 import com.example.safe_route_project.data.shelter.ShelterPin
+import com.example.safe_route_project.settings.AppThemeManager
 import com.skt.tmap.TMapPoint
 
 class HomeShelterBinder(
@@ -149,6 +150,14 @@ class HomeShelterBinder(
         actionView.setOnClickListener { onRouteShortcutClick(shelter) }
     }
 
+    private fun barrierDividerDrawableRes(view: View): Int {
+        return if (AppThemeManager.isDarkModeEnabled(view.context)) {
+            R.drawable.ic_divider_dark
+        } else {
+            R.drawable.ic_divider
+        }
+    }
+
     private fun barrierFacilityText(shelter: ShelterPin): String {
         if (!shelter.barrierFree) {
             return shelterOneDetail.context.getString(R.string.barrier_free_facility_none)
@@ -229,6 +238,7 @@ class HomeShelterBinder(
 
         barrierScroll.visibility = View.VISIBLE
         barrierFreeIcon.visibility = View.VISIBLE
+        dividerIcon.setImageResource(barrierDividerDrawableRes(dividerIcon))
         dividerIcon.visibility = View.VISIBLE
         elevatorIcon.visibility = if (hasElevator) View.VISIBLE else View.GONE
         parkingIcon.visibility = if (hasParking) View.VISIBLE else View.GONE
