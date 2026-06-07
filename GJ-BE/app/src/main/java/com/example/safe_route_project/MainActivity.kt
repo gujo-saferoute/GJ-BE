@@ -165,7 +165,8 @@ class MainActivity : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+
             insets
         }
 
@@ -197,6 +198,7 @@ class MainActivity : AppCompatActivity() {
             shelterOneToiletIcon = findViewById(R.id.home_shelter_one_toilet_icon),
             shelterOneEntranceIcon = findViewById(R.id.home_shelter_one_entrance_icon),
             shelterOneDetail = findViewById(R.id.home_shelter_one_detail),
+            shelterOneDistanceText = findViewById(R.id.home_shelter_one_distance_text),
             shelterOneAction = findViewById(R.id.home_shelter_one_distance),
 
             shelterTwoName = findViewById(R.id.home_shelter_two_name),
@@ -208,6 +210,7 @@ class MainActivity : AppCompatActivity() {
             shelterTwoToiletIcon = findViewById(R.id.home_shelter_two_toilet_icon),
             shelterTwoEntranceIcon = findViewById(R.id.home_shelter_two_entrance_icon),
             shelterTwoDetail = findViewById(R.id.home_shelter_two_detail),
+            shelterTwoDistanceText = findViewById(R.id.home_shelter_two_distance_text),
             shelterTwoAction = findViewById(R.id.home_shelter_two_distance),
         )
 

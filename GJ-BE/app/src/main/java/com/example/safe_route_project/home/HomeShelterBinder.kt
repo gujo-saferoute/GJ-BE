@@ -2,8 +2,8 @@ package com.example.safe_route_project.home
 
 import android.location.Location
 import android.view.View
-import android.widget.ImageView
 import android.widget.HorizontalScrollView
+import android.widget.ImageView
 import android.widget.TextView
 import com.example.safe_route_project.R
 import com.example.safe_route_project.data.shelter.ShelterPin
@@ -19,6 +19,7 @@ class HomeShelterBinder(
     private val shelterOneToiletIcon: ImageView,
     private val shelterOneEntranceIcon: ImageView,
     private val shelterOneDetail: TextView,
+    private val shelterOneDistanceText: TextView,
     private val shelterOneAction: TextView,
 
     private val shelterTwoName: TextView,
@@ -30,6 +31,7 @@ class HomeShelterBinder(
     private val shelterTwoToiletIcon: ImageView,
     private val shelterTwoEntranceIcon: ImageView,
     private val shelterTwoDetail: TextView,
+    private val shelterTwoDistanceText: TextView,
     private val shelterTwoAction: TextView,
 ) {
 
@@ -58,6 +60,7 @@ class HomeShelterBinder(
             toiletIcon = shelterOneToiletIcon,
             entranceIcon = shelterOneEntranceIcon,
             detailView = shelterOneDetail,
+            distanceView = shelterOneDistanceText,
             actionView = shelterOneAction,
             onRouteShortcutClick = onRouteShortcutClick
         )
@@ -73,6 +76,7 @@ class HomeShelterBinder(
             toiletIcon = shelterTwoToiletIcon,
             entranceIcon = shelterTwoEntranceIcon,
             detailView = shelterTwoDetail,
+            distanceView = shelterTwoDistanceText,
             actionView = shelterTwoAction,
             onRouteShortcutClick = onRouteShortcutClick
         )
@@ -89,12 +93,17 @@ class HomeShelterBinder(
         toiletIcon: ImageView,
         entranceIcon: ImageView,
         detailView: TextView,
+        distanceView: TextView,
         actionView: TextView,
         onRouteShortcutClick: (ShelterPin) -> Unit
     ) {
         if (shelterDistance == null) {
             nameView.text = "-"
+            detailView.visibility = View.VISIBLE
             detailView.text = "표시할 대피소가 없습니다"
+
+            distanceView.visibility = View.GONE
+
             hideBarrierIcons(
                 barrierScroll,
                 barrierFreeIcon,
@@ -104,6 +113,7 @@ class HomeShelterBinder(
                 toiletIcon,
                 entranceIcon
             )
+
             actionView.text = actionView.context.getString(R.string.route_shortcut)
             actionView.isEnabled = false
             actionView.alpha = 0.4f
@@ -112,9 +122,9 @@ class HomeShelterBinder(
         }
 
         val (shelter, distanceMeters) = shelterDistance
+
         nameView.text = shelter.name
-        detailView.visibility = View.VISIBLE
-        detailView.text = barrierFacilityText(shelter)
+
         bindBarrierIcons(
             shelter,
             barrierScroll,
@@ -126,12 +136,18 @@ class HomeShelterBinder(
             entranceIcon
         )
 
-        actionView.text = formatDistance(distanceMeters)
+        detailView.visibility = View.VISIBLE
+        detailView.text = barrierFacilityText(shelter)
+
+        distanceView.visibility = View.VISIBLE
+        distanceView.text = formatDistance(distanceMeters)
+
+        // 오른쪽 파란 버튼은 거리 표시가 아니라 무조건 "경로"
+        actionView.text = actionView.context.getString(R.string.route_shortcut)
         actionView.isEnabled = true
         actionView.alpha = 1f
         actionView.setOnClickListener { onRouteShortcutClick(shelter) }
     }
-
 
     private fun barrierFacilityText(shelter: ShelterPin): String {
         if (!shelter.barrierFree) {
@@ -145,9 +161,19 @@ class HomeShelterBinder(
             .distinct()
 
         val labels = mutableListOf<String>()
-        if (tags.contains("승강기")) labels.add("승강기")
-        if (tags.contains("장애인전용주차구역")) labels.add("장애인전용주차구역")
-        if (tags.contains("장애인사용가능화장실")) labels.add("장애인사용가능화장실")
+
+        if (tags.contains("승강기")) {
+            labels.add("승강기")
+        }
+
+        if (tags.contains("장애인전용주차구역")) {
+            labels.add("장애인전용주차구역")
+        }
+
+        if (tags.contains("장애인사용가능화장실")) {
+            labels.add("장애인사용가능화장실")
+        }
+
         labels.addAll(
             listOf(
                 "주출입구 높이차이 제거",
