@@ -38,7 +38,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.safe_route_project.app.ServiceLocator
-import com.example.safe_route_project.data.shelter.DisasterType
 import com.example.safe_route_project.data.shelter.RouteResult
 import com.example.safe_route_project.data.shelter.ShelterPin
 import com.example.safe_route_project.data.shelter.ShelterRepository
@@ -87,10 +86,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var routeInfoDetail: TextView
     private lateinit var routeInfoDistance: TextView
     private lateinit var filterBarrierFreeChip: TextView
-    private lateinit var filterAllChip: TextView
-    private lateinit var filterEarthquakeChip: TextView
-    private lateinit var filterRainChip: TextView
-    private lateinit var filterSnowChip: TextView
     private lateinit var searchShelterInput: EditText
     private lateinit var searchSuggestionsContainer: LinearLayout
 
@@ -111,7 +106,6 @@ class MainActivity : AppCompatActivity() {
     private var lastRouteShelter: ShelterPin? = null
     private var lastRouteSummaryText: String? = null
     private var routeRequestVersion = 0
-    private var activeDisasterType: DisasterType? = null
     private var barrierFreeOnly = false
     private var isApplyingSearchSuggestion = false
 
@@ -157,10 +151,6 @@ class MainActivity : AppCompatActivity() {
         routeInfoToiletIcon = findViewById(R.id.route_info_toilet_icon)
         routeInfoEntranceIcon = findViewById(R.id.route_info_entrance_icon)
         filterBarrierFreeChip = findViewById(R.id.filter_barrier_free_chip)
-        filterAllChip = findViewById(R.id.filter_all_chip)
-        filterEarthquakeChip = findViewById(R.id.filter_earthquake_chip)
-        filterRainChip = findViewById(R.id.filter_rain_chip)
-        filterSnowChip = findViewById(R.id.filter_snow_chip)
         searchShelterInput = findViewById(R.id.search_shelter_input)
         searchSuggestionsContainer = findViewById(R.id.search_suggestions_container)
 
@@ -241,7 +231,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         observeShelters()
-        setupDisasterFilterChips()
+        setupShelterFilterChips()
         setupShelterSearch()
         renderHomeShelters()
 
@@ -353,13 +343,9 @@ class MainActivity : AppCompatActivity() {
         isMapStarted = true
     }
 
-    private fun setupDisasterFilterChips() {
+    private fun setupShelterFilterChips() {
         filterBarrierFreeChip.setOnClickListener { toggleBarrierFreeFilter() }
-        filterAllChip.setOnClickListener { setActiveDisasterFilter(null) }
-        filterEarthquakeChip.setOnClickListener { setActiveDisasterFilter(DisasterType.EARTHQUAKE) }
-        filterRainChip.setOnClickListener { setActiveDisasterFilter(DisasterType.CIVIL_DEFENSE) }
-        filterSnowChip.setOnClickListener { setActiveDisasterFilter(DisasterType.LANDSLIDE) }
-        updateDisasterFilterChipStyle()
+        updateShelterFilterChipStyle()
     }
 
     private fun setupShelterSearch() {
@@ -477,18 +463,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun toggleBarrierFreeFilter() {
         barrierFreeOnly = !barrierFreeOnly
-        updateDisasterFilterChipStyle()
-        refreshShelterMarkers()
-
-        val selected = selectedShelter
-        if (selected != null && !shelterMatchesActiveFilters(selected)) {
-            clearSelectedRoute()
-        }
-    }
-
-    private fun setActiveDisasterFilter(disasterType: DisasterType?) {
-        activeDisasterType = disasterType
-        updateDisasterFilterChipStyle()
+        updateShelterFilterChipStyle()
         refreshShelterMarkers()
 
         val selected = selectedShelter
@@ -508,7 +483,7 @@ class MainActivity : AppCompatActivity() {
         selectedRouteRequestsFinished.clear()
     }
 
-    private fun updateDisasterFilterChipStyle() {
+    private fun updateShelterFilterChipStyle() {
         val selectedTextColor = ContextCompat.getColor(this, android.R.color.white)
         val normalTextColor = ContextCompat.getColor(this, R.color.sr_text_primary)
         val barrierFreeIcon = ContextCompat.getDrawable(this, R.drawable.ic_barrier_free_24)
@@ -519,16 +494,6 @@ class MainActivity : AppCompatActivity() {
         )
         filterBarrierFreeChip.setTextColor(if (barrierFreeOnly) selectedTextColor else normalTextColor)
         filterBarrierFreeChip.setCompoundDrawablesWithIntrinsicBounds(barrierFreeIcon, null, null, null)
-
-        listOf(
-            filterAllChip to (activeDisasterType == null),
-            filterEarthquakeChip to (activeDisasterType == DisasterType.EARTHQUAKE),
-            filterRainChip to (activeDisasterType == DisasterType.CIVIL_DEFENSE),
-            filterSnowChip to (activeDisasterType == DisasterType.LANDSLIDE)
-        ).forEach { (chip, selected) ->
-            chip.setBackgroundResource(if (selected) R.drawable.bg_chip_dark else R.drawable.bg_chip_light)
-            chip.setTextColor(if (selected) selectedTextColor else normalTextColor)
-        }
     }
 
     private fun checkLocationPermission() {
@@ -761,7 +726,7 @@ class MainActivity : AppCompatActivity() {
                     icon = createShelterPin(shelter.barrierFree)
                     setPosition(0.5f, 0.5f)
                     setCalloutTitle(shelter.name)
-                    setCalloutSubTitle(shelter.disasterLabels())
+                    setCalloutSubTitle(shelter.address)
                     canShowCallout = true
                     autoCallloutVisible = true
                 }
@@ -771,8 +736,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shelterMatchesActiveFilters(shelter: ShelterPin): Boolean {
-        return shelter.matchesDisasterFilter(activeDisasterType) &&
-                (!barrierFreeOnly || shelter.barrierFree)
+        return !barrierFreeOnly || shelter.barrierFree
     }
 
     private fun renderHomeShelters() {

@@ -32,21 +32,12 @@ class ShelterRepository(
             val barrierFree = doc.getBoolean("barrierFree") ?: false
             val evalInfo = doc.getString("evalInfo") ?: ""
 
-            val disasterTypeStrings = doc.get("disasterTypes") as? List<*> ?: emptyList<Any>()
-            val disasterTypes = disasterTypeStrings
-                .mapNotNull { it as? String }
-                .mapNotNull { typeName ->
-                    DisasterType.entries.firstOrNull { it.name == typeName }
-                }
-                .toSet()
-
             ShelterPin(
                 markerId = markerId,
                 name = name,
                 address = address,
                 description = description,
                 point = TMapPoint(latitude, longitude),
-                disasterTypes = disasterTypes,
                 barrierFree = barrierFree,
                 evalInfo = evalInfo
             )

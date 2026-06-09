@@ -439,28 +439,6 @@
                         android:drawableStart="@drawable/ic_barrier_free_24"
                         android:drawablePadding="6dp"
                         android:text="@string/barrier_free_filter" />
-
-                    <TextView
-                        android:id="@+id/filter_all_chip"
-                        style="@style/SafeRoute_FilterChip"
-                        android:background="@drawable/bg_chip_dark"
-                        android:text="전체"
-                        android:textColor="@android:color/white" />
-
-                    <TextView
-                        android:id="@+id/filter_earthquake_chip"
-                        style="@style/SafeRoute_FilterChip"
-                        android:text="지진" />
-
-                    <TextView
-                        android:id="@+id/filter_rain_chip"
-                        style="@style/SafeRoute_FilterChip"
-                        android:text="민방위" />
-
-                    <TextView
-                        android:id="@+id/filter_snow_chip"
-                        style="@style/SafeRoute_FilterChip"
-                        android:text="산사태" />
                 </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>
