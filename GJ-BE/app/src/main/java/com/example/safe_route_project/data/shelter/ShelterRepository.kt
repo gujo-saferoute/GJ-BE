@@ -1,5 +1,6 @@
 package com.example.safe_route_project.data.shelter
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.skt.tmap.TMapPoint
@@ -7,18 +8,18 @@ import com.skt.tmap.TMapPoint
 class ShelterRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
+    private val shelterCollection = firestore.collection("shelters")
+
     fun fetchShelters(
         onSuccess: (List<ShelterPin>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        firestore.collection("shelters")
+        shelterCollection
             .get()
             .addOnSuccessListener { result ->
                 onSuccess(result.toShelterPins())
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+            .addOnFailureListener { exception -> onFailure(exception) }
     }
 
     private fun QuerySnapshot.toShelterPins(): List<ShelterPin> {
@@ -39,8 +40,20 @@ class ShelterRepository(
                 description = description,
                 point = TMapPoint(latitude, longitude),
                 barrierFree = barrierFree,
-                evalInfo = evalInfo
+                evalInfo = evalInfo,
+                disasterTypes = doc.disasterTypes()
             )
         }
+    }
+
+    private fun DocumentSnapshot.disasterTypes(): List<String> {
+        return get("disasterTypes").toStringList()
+            .ifEmpty { listOfNotNull(getString("disasterType")) }
+    }
+
+    private fun Any?.toStringList(): List<String> {
+        return (this as? List<*>)
+            ?.mapNotNull { value -> value as? String }
+            ?: emptyList()
     }
 }

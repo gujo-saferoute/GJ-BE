@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -56,6 +57,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.skt.tmap.TMapData
 import com.skt.tmap.TMapInsets
 import com.skt.tmap.TMapPoint
@@ -263,6 +265,7 @@ class MainActivity : AppCompatActivity() {
         shelterRepository.fetchShelters(
             onSuccess = { shelters ->
                 shelterPins = shelters
+                Log.d(TAG, "Fetched ${shelters.size} shelters from Firestore.")
                 renderHomeShelters()
 
                 if (isMapStarted) {
@@ -274,10 +277,19 @@ class MainActivity : AppCompatActivity() {
                     clearSelectedRoute()
                 }
             },
-            onFailure = {
-                Toast.makeText(this, "대피소 데이터를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            onFailure = { exception ->
+                Log.e(TAG, "Failed to fetch shelters from Firestore.", exception)
+                Toast.makeText(this, shelterLoadFailureMessage(exception), Toast.LENGTH_SHORT).show()
             }
         )
+    }
+
+    private fun shelterLoadFailureMessage(exception: Exception): String {
+        return when ((exception as? FirebaseFirestoreException)?.code) {
+            FirebaseFirestoreException.Code.PERMISSION_DENIED -> "대피소 데이터 접근 권한이 없습니다."
+            FirebaseFirestoreException.Code.UNAVAILABLE -> "네트워크 연결 후 대피소 정보를 다시 확인해주세요."
+            else -> "대피소 데이터를 불러오지 못했습니다."
+        }
     }
 
     private fun barrierDividerDrawableRes(): Int {
@@ -1471,5 +1483,6 @@ class MainActivity : AppCompatActivity() {
         private const val MY_LOCATION_MARKER_ID = "myLocation"
         private const val SHELTER_ROUTE_LINE_ID = "selectedShelterRoute"
         private const val ROUTE_REFRESH_DISTANCE_METERS = 30f
+        private const val TAG = "MainActivity"
     }
 }

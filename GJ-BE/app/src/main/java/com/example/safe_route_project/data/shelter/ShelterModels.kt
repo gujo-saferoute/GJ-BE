@@ -9,7 +9,8 @@ data class ShelterPin(
     val description: String,
     val point: TMapPoint,
     val barrierFree: Boolean,
-    val evalInfo: String = ""
+    val evalInfo: String = "",
+    val disasterTypes: List<String> = emptyList()
 )
 
 data class RouteResult(
